@@ -1,0 +1,1682 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Qaaf Star Quest</title>
+<meta name="description" content="Qaaf Academy Star Quest: stars, habits and leaderboards for Qaaf Kids.">
+<meta name="theme-color" content="#0B9B6A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Star Quest">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800;900&family=Amiri:wght@400;700&display=swap">
+<style>
+
+/* Layout: role picker → parent app as a phone-width column with a bottom tab bar; staff consoles as a wide header + tab strip + panels; drawers and full-screen reveal on top */
+:root{
+  --bg:#F1F6FB; --surface:#FFFFFF; --surface-2:#E7EEF7; --line:#D3DDEA;
+  --fg:#14213B; --muted:#55647E; --faint:#8592A9;
+  --brand:#0B9B6A; --brand-deep:#067650; --brand-soft:#D8F3E7; --brand-ink:#05683F; --on-brand:#FFFFFF;
+  --sun:#FFB81F; --sun-deep:#CF8A00; --sun-soft:#FFF0C7; --sun-ink:#764F00;
+  --coral:#FF6A47; --coral-deep:#D9472A; --coral-soft:#FFE1D8; --coral-ink:#A2361C;
+  --sky:#2F86EB; --sky-deep:#1D63BC; --sky-soft:#DBE9FF; --sky-ink:#1A57A3;
+  --grape:#7A5CF0; --grape-soft:#E9E3FF; --grape-ink:#4A32B8;
+  --bronze:#C17A43; --silver:#8F9CAE; --gold:#E9A800; --diamond:#20B2E3; --on-medal:#FFFFFF;
+  --scrim:rgba(14,22,40,.5); --shadow:0 12px 36px rgba(21,33,59,.14); --stage:#0E1630; --on-stage:#F4F7FF;
+  --font-display:"Baloo 2","Nunito",ui-rounded,system-ui,sans-serif;
+  --font-body:"Nunito",ui-rounded,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-arabic:"Amiri","Noto Naskh Arabic","Geeza Pro",serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E1525; --surface:#162036; --surface-2:#1E2A44; --line:#2B3A58;
+  --fg:#EAF0FA; --muted:#A5B2C9; --faint:#7787A3;
+  --brand:#25C389; --brand-deep:#13945F; --brand-soft:#123A2C; --brand-ink:#86E6BF; --on-brand:#06261A;
+  --sun:#FFC94A; --sun-deep:#C99419; --sun-soft:#3A3013; --sun-ink:#FFE08F;
+  --coral:#FF8466; --coral-deep:#D45E43; --coral-soft:#3D2219; --coral-ink:#FFB7A4;
+  --sky:#5EA6FF; --sky-deep:#3479D1; --sky-soft:#172C4A; --sky-ink:#AFCFFF;
+  --grape:#9C88FF; --grape-soft:#251F48; --grape-ink:#CBC0FF;
+  --bronze:#D08B55; --silver:#9DA9BA; --gold:#F2B71B; --diamond:#3CC3EE; --on-medal:#0E1525;
+  --scrim:rgba(0,0,0,.62); --shadow:0 12px 36px rgba(0,0,0,.5); --stage:#070B18; --on-stage:#F4F7FF;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0E1525; --surface:#162036; --surface-2:#1E2A44; --line:#2B3A58;
+  --fg:#EAF0FA; --muted:#A5B2C9; --faint:#7787A3;
+  --brand:#25C389; --brand-deep:#13945F; --brand-soft:#123A2C; --brand-ink:#86E6BF; --on-brand:#06261A;
+  --sun:#FFC94A; --sun-deep:#C99419; --sun-soft:#3A3013; --sun-ink:#FFE08F;
+  --coral:#FF8466; --coral-deep:#D45E43; --coral-soft:#3D2219; --coral-ink:#FFB7A4;
+  --sky:#5EA6FF; --sky-deep:#3479D1; --sky-soft:#172C4A; --sky-ink:#AFCFFF;
+  --grape:#9C88FF; --grape-soft:#251F48; --grape-ink:#CBC0FF;
+  --bronze:#D08B55; --silver:#9DA9BA; --gold:#F2B71B; --diamond:#3CC3EE; --on-medal:#0E1525;
+  --scrim:rgba(0,0,0,.62); --shadow:0 12px 36px rgba(0,0,0,.5); --stage:#070B18; --on-stage:#F4F7FF;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:15px;line-height:1.5}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+h1,h2,h3,h4{font-family:var(--font-display);margin:0;line-height:1.15;text-wrap:balance;font-weight:800}
+p{margin:0}
+:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+.num{font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)} .small{font-size:12.5px} .tiny{font-size:11.5px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.between{justify-content:space-between}
+.grow{flex:1;min-width:0}
+
+/* demo bar */
+.demo-bar{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;justify-content:center;padding:7px 16px;background:var(--fg);color:var(--bg);font-size:12.5px;font-weight:700}
+.demo-bar b{color:var(--sun)}
+.demo-bar button{border:0;background:var(--sun);color:#14213B;border-radius:999px;padding:3px 12px;font-weight:800;font-size:12px}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:14px;padding:9px 16px;font-weight:800;font-size:14px;border:2px solid var(--line);border-bottom-width:4px;background:var(--surface);color:var(--fg);transition:transform .06s}
+.btn:active{transform:translateY(2px);border-bottom-width:2px}
+.btn.pri{background:var(--brand);border-color:var(--brand-deep);color:var(--on-brand)}
+.btn.sun{background:var(--sun);border-color:var(--sun-deep);color:#2A1B00}
+.btn.sky{background:var(--sky);border-color:var(--sky-deep);color:#FFFFFF}
+.btn.ghost{border-bottom-width:2px}
+.btn.sm{padding:5px 11px;font-size:12.5px;border-radius:11px}
+.btn.block{width:100%}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.link{border:0;background:none;padding:0;color:var(--sky-ink);font-weight:800;text-decoration:underline;text-underline-offset:3px}
+
+/* chips, segments */
+.seg{display:inline-flex;flex-wrap:wrap;gap:3px;background:var(--surface-2);padding:4px;border-radius:14px}
+.seg button{border:0;background:none;border-radius:10px;padding:6px 13px;font-weight:800;font-size:13px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--fg);box-shadow:0 2px 0 var(--line)}
+.chip{display:inline-flex;align-items:center;gap:5px;border:2px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 12px;font-weight:700;font-size:13px}
+.chip[aria-pressed="true"]{background:var(--sky-soft);border-color:var(--sky);color:var(--sky-ink)}
+.tag{display:inline-flex;align-items:center;gap:4px;padding:1px 9px;border-radius:999px;font-size:11.5px;font-weight:800;background:var(--surface-2);color:var(--muted);white-space:nowrap}
+.tag.ok{background:var(--brand-soft);color:var(--brand-ink)}
+.tag.warn{background:var(--sun-soft);color:var(--sun-ink)}
+.tag.bad{background:var(--coral-soft);color:var(--coral-ink)}
+.tag.info{background:var(--sky-soft);color:var(--sky-ink)}
+.tag.grape{background:var(--grape-soft);color:var(--grape-ink)}
+
+/* avatars & bands */
+.av{--s:40px;width:var(--s);height:var(--s);border-radius:50%;display:inline-grid;place-items:center;font-family:var(--font-display);font-weight:800;font-size:calc(var(--s)*.38);flex:none;line-height:1}
+.av-0{background:var(--sky-soft);color:var(--sky-ink)} .av-1{background:var(--grape-soft);color:var(--grape-ink)} .av-2{background:var(--coral-soft);color:var(--coral-ink)} .av-3{background:var(--brand-soft);color:var(--brand-ink)} .av-4{background:var(--sun-soft);color:var(--sun-ink)}
+.band{display:inline-flex;align-items:center;gap:6px;font-weight:800;font-size:12.5px;padding:2px 10px 2px 4px;border-radius:999px;background:var(--surface-2);white-space:nowrap}
+.band i{width:16px;height:16px;border-radius:50%;display:block}
+.b-bronze i{background:var(--bronze)} .b-silver i{background:var(--silver)} .b-gold i{background:var(--gold)} .b-diamond i{background:var(--diamond)} .b-none i{background:var(--line)}
+.medal{width:var(--m,64px);height:var(--m,64px);border-radius:50%;display:grid;place-items:center;color:var(--on-medal);font-family:var(--font-display);font-weight:800;font-size:calc(var(--m,64px)*.42);box-shadow:inset 0 -5px 0 rgba(0,0,0,.15);flex:none}
+.medal.bronze{background:var(--bronze)} .medal.silver{background:var(--silver)} .medal.gold{background:var(--gold)} .medal.diamond{background:var(--diamond)} .medal.none{background:var(--surface-2);color:var(--faint);box-shadow:none}
+.bar{height:10px;border-radius:99px;background:var(--surface-2);overflow:hidden}
+.bar>span{display:block;height:100%;border-radius:99px;background:var(--brand)}
+.bar.sun>span{background:var(--sun)} .bar.sky>span{background:var(--sky)} .bar.grape>span{background:var(--grape)} .bar.coral>span{background:var(--coral)}
+
+/* ===== LOGIN ===== */
+.login{max-width:980px;margin:0 auto;padding-inline:16px;padding-block:28px 48px;display:grid;gap:22px}
+.hero{display:flex;flex-wrap:wrap;gap:18px 28px;align-items:center}
+.hero h1{font-size:clamp(34px,6vw,52px);letter-spacing:-.01em}
+.hero h1 span{color:var(--brand)}
+.hero p{color:var(--muted);font-size:16px;max-width:52ch}
+.roles{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:14px}
+.role-card{border:2px solid var(--line);border-bottom-width:5px;border-radius:22px;background:var(--surface);padding:18px;text-align:left;display:grid;gap:8px;align-content:start}
+.role-card:hover{border-color:var(--sky)}
+.role-card .ic{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font-size:26px}
+.role-card h3{font-size:21px}
+.role-card p{color:var(--muted);font-size:13.5px}
+.login-box{max-width:460px;width:100%;justify-self:center;background:var(--surface);border:2px solid var(--line);border-radius:24px;padding:22px;display:grid;gap:14px}
+.field{display:grid;gap:5px;min-width:0}
+.field label,.field .lbl{font-weight:800;font-size:13px;color:var(--muted)}
+.inp,select.inp,textarea.inp{border:2px solid var(--line);border-radius:12px;background:var(--surface);padding:9px 12px;font-weight:700;width:100%;min-width:0}
+.inp:focus{border-color:var(--sky);outline:none}
+.err{color:var(--coral-ink);font-weight:800;font-size:13px}
+.namegrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.namegrid button{border:2px solid var(--line);border-bottom-width:4px;border-radius:14px;background:var(--surface);padding:10px;font-weight:800;text-align:left;display:flex;gap:8px;align-items:center}
+.namegrid button[aria-pressed="true"]{border-color:var(--brand);background:var(--brand-soft);color:var(--brand-ink)}
+
+/* ===== KID (PARENT) APP ===== */
+.kid{max-width:480px;margin:0 auto;padding-inline:16px;padding-block:14px 0;display:grid;gap:14px;min-height:calc(100vh - 34px);grid-template-rows:auto 1fr auto}
+.k-head{display:flex;align-items:center;gap:12px}
+.k-head .who{flex:1;min-width:0}
+.k-head .who b{font-family:var(--font-display);font-size:20px;display:block;line-height:1.1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.k-head .who span{font-size:12.5px;color:var(--muted);font-weight:700}
+.icon-btn{border:2px solid var(--line);background:var(--surface);border-radius:12px;width:40px;height:40px;display:grid;place-items:center;font-size:18px;flex:none}
+.k-main{display:grid;gap:14px;align-content:start;padding-bottom:12px}
+.k-card{background:var(--surface);border:2px solid var(--line);border-radius:24px;padding:16px;display:grid;gap:12px}
+.k-card h3{font-size:19px}
+.bubble-row{display:flex;gap:10px;align-items:flex-end}
+.bubble{position:relative;background:var(--surface);border:2px solid var(--line);border-radius:20px 20px 20px 6px;padding:11px 14px;font-weight:700;font-size:14.5px;flex:1;min-width:0}
+.stars-card{background:linear-gradient(135deg,var(--sun-soft),var(--surface));}
+.big-num{font-family:var(--font-display);font-weight:800;font-size:44px;line-height:1}
+.statrow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:var(--surface-2);border-radius:16px;padding:10px 12px;display:grid;gap:2px}
+.stat b{font-family:var(--font-display);font-size:24px;line-height:1.1}
+.stat span{font-size:12px;color:var(--muted);font-weight:800}
+.round-card{border-color:var(--sky)}
+.ring{--p:50;--c:var(--sky);width:92px;height:92px;border-radius:50%;background:conic-gradient(var(--c) calc(var(--p)*1%),var(--surface-2) 0);display:grid;place-items:center;flex:none}
+.ring>div{width:72px;height:72px;border-radius:50%;background:var(--surface);display:grid;place-items:center;text-align:center;line-height:1}
+.ring b{font-family:var(--font-display);font-size:24px}
+.ring small{display:block;font-size:10.5px;color:var(--muted);font-weight:800}
+.hint{background:var(--sky-soft);color:var(--sky-ink);border-radius:14px;padding:9px 12px;font-weight:800;font-size:13.5px}
+.hint.sun{background:var(--sun-soft);color:var(--sun-ink)}
+.hint.ok{background:var(--brand-soft);color:var(--brand-ink)}
+.hint.grape{background:var(--grape-soft);color:var(--grape-ink)}
+.hint.coral{background:var(--coral-soft);color:var(--coral-ink)}
+.mission{display:flex;gap:12px;align-items:center;padding:10px 0;border-top:2px dashed var(--line)}
+.mission:first-of-type{border-top:0}
+.mission .tick{width:30px;height:30px;border-radius:50%;border:3px solid var(--line);display:grid;place-items:center;font-weight:900;flex:none;color:var(--on-brand)}
+.mission.done .tick{background:var(--brand);border-color:var(--brand)}
+.mission .txt{flex:1;min-width:0;font-weight:700}
+.mission .txt small{display:block;color:var(--muted);font-weight:700}
+.pillars{display:grid;gap:10px}
+.pillar{display:grid;grid-template-columns:34px 1fr auto;gap:10px;align-items:center}
+.pillar .pi{font-size:22px;text-align:center}
+.pillar .pn{font-weight:800;font-size:13.5px}
+.pillar .pv{font-weight:800;font-size:13px;color:var(--muted)}
+.tree-wrap{display:flex;gap:14px;align-items:center}
+.tree-wrap svg{flex:none}
+.phases{display:flex;gap:4px;flex-wrap:wrap}
+.phases span{font-size:11px;font-weight:800;padding:2px 8px;border-radius:999px;background:var(--surface-2);color:var(--faint)}
+.phases span.on{background:var(--brand-soft);color:var(--brand-ink)}
+.phases span.now{background:var(--brand);color:var(--on-brand)}
+.nav-b{position:sticky;bottom:0;display:grid;grid-template-columns:repeat(5,1fr);gap:2px;background:var(--surface);border-top:2px solid var(--line);margin-inline:-16px;padding:6px 8px calc(env(safe-area-inset-bottom,0px) + 6px);z-index:5}
+.nav-b button{border:0;background:none;display:grid;justify-items:center;gap:1px;padding:5px 2px;border-radius:12px;font-weight:800;font-size:11px;color:var(--muted)}
+.nav-b button i{font-style:normal;font-size:21px;line-height:1.1;filter:grayscale(1);opacity:.75}
+.nav-b button[aria-current="page"]{background:var(--brand-soft);color:var(--brand-ink)}
+.nav-b button[aria-current="page"] i{filter:none;opacity:1}
+.nav-b .dot{position:relative}
+.nav-b .dot::after{content:"";position:absolute;top:2px;right:28%;width:8px;height:8px;border-radius:50%;background:var(--coral)}
+
+/* check-in */
+.dates{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px}
+.dates button{border:2px solid var(--line);border-bottom-width:4px;background:var(--surface);border-radius:16px;padding:7px 12px;font-weight:800;display:grid;justify-items:center;line-height:1.15;min-width:72px;flex:none}
+.dates button small{font-size:11px;color:var(--muted)}
+.dates button[aria-pressed="true"]{border-color:var(--sky);background:var(--sky-soft);color:var(--sky-ink)}
+.routines{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.rt{border:2px solid var(--line);border-bottom-width:5px;border-radius:20px;background:var(--surface);padding:12px 10px 10px;display:grid;justify-items:center;gap:4px;text-align:center;position:relative;min-height:116px;align-content:center}
+.rt .em{font-size:36px;line-height:1.1}
+.rt .rn{font-weight:800;font-size:13.5px;line-height:1.2}
+.rt .chk{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;border:3px solid var(--line);display:grid;place-items:center;font-weight:900;font-size:14px;color:var(--on-brand)}
+.rt[aria-pressed="true"]{border-color:var(--brand);background:var(--brand-soft)}
+.rt[aria-pressed="true"] .chk{background:var(--brand);border-color:var(--brand)}
+.rt-info{border:0;background:none;color:var(--sky-ink);font-weight:800;font-size:12px;padding:2px 6px;text-decoration:underline}
+.progress-head{display:flex;align-items:center;gap:12px}
+.progress-head .bar{flex:1;height:14px}
+
+/* leaderboard */
+.podium{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;align-items:end;text-align:center}
+.pd{display:grid;justify-items:center;gap:6px}
+.pd .stand{width:100%;border-radius:16px 16px 6px 6px;display:grid;place-items:center;font-family:var(--font-display);font-weight:800;font-size:22px;color:var(--on-medal)}
+.pd.p1 .stand{height:84px;background:var(--gold)} .pd.p2 .stand{height:62px;background:var(--silver)} .pd.p3 .stand{height:48px;background:var(--bronze)}
+.pd .nm{font-weight:800;font-size:13px;line-height:1.2;min-height:2.4em}
+.pd .pts{font-size:12px;font-weight:800;color:var(--muted)}
+.mystery{background:var(--grape-soft)!important;color:var(--grape-ink)!important}
+.lb{display:grid}
+.lb-row{display:grid;grid-template-columns:34px auto 1fr auto;gap:10px;align-items:center;padding:8px 6px;border-top:2px solid var(--surface-2);border-radius:12px}
+.lb-row:first-child{border-top:0}
+.lb-row .rk{font-family:var(--font-display);font-weight:800;color:var(--muted);text-align:center;font-size:17px}
+.lb-row .nm{font-weight:800;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb-row .nm small{display:block;font-weight:700;color:var(--muted);font-size:12px}
+.lb-row .val{font-family:var(--font-display);font-weight:800;font-size:17px;text-align:right}
+.lb-row.me{background:var(--sun-soft);border-top-color:transparent}
+.stargroup{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:10px;text-align:center}
+.stargroup div{display:grid;justify-items:center;gap:4px;font-weight:800;font-size:12px;line-height:1.15}
+.stargroup div.me .av{outline:4px solid var(--sun)}
+.cup{display:grid;grid-template-columns:90px 1fr 48px;gap:10px;align-items:center;font-weight:800;font-size:13.5px}
+.cup .bar{height:14px}
+.cup .v{text-align:right;font-variant-numeric:tabular-nums}
+
+/* badges */
+.badges{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.bdg{border:0;background:none;display:grid;justify-items:center;gap:5px;text-align:center;padding:4px}
+.bdg .disc{width:66px;height:66px;border-radius:50%;display:grid;place-items:center;font-size:32px;background:var(--sun-soft);border:3px solid var(--sun);box-shadow:inset 0 -5px 0 rgba(0,0,0,.08)}
+.bdg.locked .disc{background:var(--surface-2);border-color:var(--line);filter:grayscale(1);opacity:.55}
+.bdg b{font-size:12px;font-weight:800;line-height:1.2}
+.bdg small{font-size:10.5px;color:var(--muted);font-weight:700}
+.levels{display:grid;gap:6px}
+.lvl-row{display:flex;gap:10px;align-items:center;padding:6px 10px;border-radius:12px;font-weight:800;font-size:13.5px}
+.lvl-row.done{color:var(--brand-ink)} .lvl-row.cur{background:var(--sun-soft);color:var(--sun-ink)} .lvl-row.next{color:var(--faint)}
+.awards-strip{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px}
+.awards-strip button{border:0;background:none;padding:0;flex:none;width:132px}
+
+/* messages */
+.thread{display:grid;gap:8px}
+.msg{max-width:85%;padding:9px 12px;border-radius:16px;font-weight:600;font-size:14px}
+.msg.p{background:var(--sky-soft);color:var(--sky-ink);justify-self:end;border-bottom-right-radius:4px}
+.msg.m{background:var(--surface-2);justify-self:start;border-bottom-left-radius:4px}
+.msg small{display:block;font-size:11px;opacity:.75;font-weight:700;margin-top:2px}
+
+/* ===== STAFF ===== */
+.staff{max-width:1220px;margin:0 auto;padding-inline:16px;padding-block:14px 56px;display:grid;gap:14px}
+.st-head{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between}
+.st-head .who{display:flex;gap:10px;align-items:center}
+.st-head h1{font-size:24px}
+.st-head .who span{font-size:12.5px;color:var(--muted);font-weight:700;display:block}
+.tabs{display:flex;flex-wrap:wrap;gap:4px;border-bottom:2px solid var(--line)}
+.tabs button{border:0;background:none;padding:9px 13px;font-weight:800;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-2px;font-size:14px;display:flex;gap:6px;align-items:center}
+.tabs button[aria-selected="true"]{color:var(--brand-ink);border-bottom-color:var(--brand)}
+.tabs .cnt{background:var(--coral);color:#fff;border-radius:999px;font-size:11px;padding:0 7px;line-height:18px}
+.panel{background:var(--surface);border:2px solid var(--line);border-radius:18px;padding:16px;display:grid;gap:12px;min-width:0;align-content:start}
+.panel h2{font-size:19px}
+.panel-head{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline;justify-content:space-between}
+.panel-head p{font-size:13px;color:var(--muted);font-weight:600}
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,430px),1fr));gap:14px}
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.kpi{background:var(--surface);border:2px solid var(--line);border-radius:16px;padding:12px 14px;display:grid;gap:1px}
+.kpi span{font-size:12px;font-weight:800;color:var(--muted)}
+.kpi b{font-family:var(--font-display);font-size:28px;line-height:1.15}
+.kpi small{font-size:11.5px;color:var(--faint);font-weight:700}
+.kpi.warn{border-color:var(--sun)} .kpi.bad{border-color:var(--coral)} .kpi.ok{border-color:var(--brand)}
+button.kpi{text-align:left}
+.tbl-wrap{overflow-x:auto;border:2px solid var(--line);border-radius:14px}
+.tbl{width:100%;border-collapse:collapse;font-size:13.5px}
+.tbl th{text-align:left;font-size:12px;font-weight:800;color:var(--muted);background:var(--surface-2);padding:8px 10px;white-space:nowrap}
+.tbl td{padding:8px 10px;border-top:1px solid var(--line);vertical-align:middle}
+.tbl .n{text-align:right;font-variant-numeric:tabular-nums}
+.tbl tr.click{cursor:pointer}
+.tbl tr.click:hover td{background:var(--sky-soft)}
+.who-cell{display:flex;gap:8px;align-items:center;min-width:180px}
+.who-cell b{display:block;font-weight:800}
+.who-cell small{color:var(--muted);font-weight:700;font-size:11.5px}
+.mark-row{display:grid;grid-template-columns:minmax(170px,1.3fr) auto auto;gap:8px 12px;align-items:center;padding:8px 4px;border-top:1px solid var(--line)}
+.mark-row:first-child{border-top:0}
+@media (max-width:720px){.mark-row{grid-template-columns:1fr}}
+.tri{display:inline-flex;flex-wrap:wrap;gap:4px}
+.tri button{border:2px solid var(--line);background:var(--surface);border-radius:10px;padding:4px 10px;font-weight:800;font-size:12.5px;white-space:nowrap}
+.tri button[aria-pressed="true"].on{background:var(--brand-soft);border-color:var(--brand);color:var(--brand-ink)}
+.tri button[aria-pressed="true"].late{background:var(--sun-soft);border-color:var(--sun);color:var(--sun-ink)}
+.tri button[aria-pressed="true"].miss{background:var(--coral-soft);border-color:var(--coral);color:var(--coral-ink)}
+.tri button[aria-pressed="true"].q{background:var(--grape-soft);border-color:var(--grape);color:var(--grape-ink)}
+.alist{display:grid}
+.aitem{display:grid;grid-template-columns:auto 1fr auto;gap:4px 10px;align-items:center;padding:10px 2px;border-top:1px solid var(--line)}
+.aitem:first-child{border-top:0}
+.aitem .why{grid-column:2/-1;font-size:12.5px;color:var(--muted);font-weight:700;display:flex;flex-wrap:wrap;gap:4px}
+.hbars{display:grid;gap:9px}
+.hbar{display:grid;grid-template-columns:110px 1fr 54px;gap:10px;align-items:center;font-size:13px;font-weight:800}
+.hbar .bar{height:16px;border-radius:6px}
+.hbar .bar>span{border-radius:6px}
+.hbar .v{text-align:right;font-variant-numeric:tabular-nums}
+.stack{display:flex;height:16px;border-radius:6px;overflow:hidden;background:var(--surface-2)}
+.stack span{display:block;height:100%}
+.stack .bronze{background:var(--bronze)} .stack .silver{background:var(--silver)} .stack .gold{background:var(--gold)} .stack .diamond{background:var(--diamond)} .stack .none{background:var(--line)}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;font-weight:800;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+.timeline{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.tl-r{border:2px solid var(--line);border-radius:14px;padding:10px;display:grid;gap:3px}
+.tl-r b{font-family:var(--font-display);font-size:17px}
+.tl-r.cur{border-color:var(--sky);background:var(--sky-soft)}
+.tl-r.done{border-color:var(--brand)}
+.drop{border:3px dashed var(--line);border-radius:16px;padding:18px;text-align:center;display:grid;gap:8px;justify-items:center}
+.canva{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.canva-card{border:2px solid var(--line);border-radius:16px;padding:10px;display:grid;gap:8px}
+.poster-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.poster-grid button{border:0;background:none;padding:0;text-align:left;display:grid;gap:6px}
+.heat{display:grid;grid-template-columns:repeat(14,1fr);gap:3px}
+.heat i{aspect-ratio:1;border-radius:4px;background:var(--surface-2);display:block;max-width:100%}
+.heat i.h1{background:color-mix(in srgb,var(--brand) 35%,var(--surface))} .heat i.h2{background:color-mix(in srgb,var(--brand) 65%,var(--surface))} .heat i.h3{background:var(--brand)}
+.strip{display:flex;flex-wrap:wrap;gap:4px}
+.strip i{width:24px;height:24px;border-radius:6px;display:grid;place-items:center;font-style:normal;font-size:10.5px;font-weight:900;background:var(--surface-2);color:var(--faint)}
+.strip i.y{background:var(--brand);color:var(--on-brand)} .strip i.p{background:var(--sun);color:#2A1B00} .strip i.x{background:var(--coral-soft);color:var(--coral-ink)} .strip i.e{background:var(--sky-soft);color:var(--sky-ink)}
+.routine-set{display:grid;gap:6px}
+.routine-set .rs{display:grid;grid-template-columns:auto 34px 1fr auto;gap:10px;align-items:center;border:2px solid var(--line);border-radius:14px;padding:8px 10px;background:var(--surface)}
+.routine-set .rs.off{opacity:.55}
+.routine-set .em{font-size:22px;text-align:center}
+.switch{width:44px;height:26px;border-radius:99px;border:0;background:var(--line);position:relative;flex:none}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:var(--surface);transition:left .15s}
+.switch[aria-checked="true"]{background:var(--brand)}
+.switch[aria-checked="true"]::after{left:21px}
+.pts-tbl input{width:72px;text-align:right}
+
+/* overlays */
+.scrim{position:fixed;inset:0;background:var(--scrim);z-index:30}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(560px,100%);background:var(--bg);z-index:31;overflow-y:auto;padding:calc(env(safe-area-inset-top,0px) + 16px) 16px calc(env(safe-area-inset-bottom,0px) + 28px);display:grid;gap:12px;align-content:start;box-shadow:var(--shadow)}
+.modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(440px,calc(100% - 32px));max-height:calc(100% - 32px);overflow-y:auto;background:var(--surface);border-radius:24px;z-index:31;padding:18px;display:grid;gap:12px;box-shadow:var(--shadow)}
+.modal.wide{width:min(520px,calc(100% - 32px))}
+.x{border:2px solid var(--line);background:var(--surface);width:36px;height:36px;border-radius:10px;font-size:18px;line-height:1;flex:none}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 86px);background:var(--fg);color:var(--bg);font-weight:800;padding:11px 18px;border-radius:14px;z-index:60;box-shadow:var(--shadow);max-width:calc(100% - 32px);text-align:center}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:70}
+
+/* poster */
+.poster{--g1:var(--gold);--g2:var(--sun);aspect-ratio:4/5;width:100%;max-width:100%;border-radius:18px;background:linear-gradient(160deg,var(--g1),var(--g2));color:#FFFFFF;display:grid;grid-template-rows:auto auto 1fr auto auto auto;justify-items:center;text-align:center;padding:7% 6%;gap:2%;position:relative;overflow:hidden;container-type:inline-size}
+.poster::before{content:"";position:absolute;inset:-30% -30% auto auto;width:80%;aspect-ratio:1;border-radius:50%;background:rgba(255,255,255,.14)}
+.poster::after{content:"";position:absolute;inset:auto auto -25% -25%;width:70%;aspect-ratio:1;border-radius:50%;background:rgba(255,255,255,.10)}
+.poster>*{position:relative;z-index:1}
+.pz-top{font-weight:900;letter-spacing:.14em;font-size:4.4cqw}
+.pz-top span{display:block;letter-spacing:.06em;font-weight:800;opacity:.9;font-size:3.6cqw}
+.pz-ar{font-family:var(--font-arabic);font-size:9cqw;line-height:1.2}
+.pz-av{width:34cqw;height:34cqw;border-radius:50%;background:#FFFFFF;color:#14213B;display:grid;place-items:center;font-family:var(--font-display);font-weight:800;font-size:13cqw;border:1.6cqw solid rgba(255,255,255,.6);align-self:center}
+.pz-name{font-family:var(--font-display);font-weight:800;font-size:8.5cqw;line-height:1.05}
+.pz-award{background:rgba(255,255,255,.95);color:#14213B;border-radius:999px;padding:2cqw 5cqw;font-weight:900;font-size:5.2cqw}
+.pz-foot{font-weight:800;font-size:3.6cqw;opacity:.95}
+.pz-champ{--g1:#F2A900;--g2:#FF7A45} .pz-rise{--g1:#2F86EB;--g2:#7A5CF0} .pz-streak{--g1:#FF6A47;--g2:#FFB81F} .pz-choice{--g1:#0B9B6A;--g2:#2F86EB} .pz-canva{--g1:#7A5CF0;--g2:#FF6A47} .pz-perfect{--g1:#067650;--g2:#0B9B6A} .pz-gold{--g1:#B8860B;--g2:#F2B700} .pz-academy{--g1:#4A32B8;--g2:#2F86EB}
+
+/* reveal */
+.reveal{position:fixed;inset:0;z-index:50;background:radial-gradient(ellipse at 50% 20%,#24305C,var(--stage) 70%);color:var(--on-stage);display:grid;grid-template-rows:auto 1fr auto;padding:calc(env(safe-area-inset-top,0px) + 16px) 16px calc(env(safe-area-inset-bottom,0px) + 18px);gap:12px}
+.reveal .seg{background:rgba(255,255,255,.1)}
+.reveal .seg button{color:#C9D3F0}
+.reveal .seg button[aria-pressed="true"]{background:#FFFFFF;color:#14213B;box-shadow:none}
+.rv-stage{display:grid;place-items:center;text-align:center;gap:14px;align-content:center}
+.rv-title{font-family:var(--font-display);font-size:clamp(28px,6vw,54px);font-weight:800;line-height:1.05}
+.rv-sub{font-weight:800;color:#C9D3F0;font-size:clamp(14px,2.4vw,18px)}
+.rv-card{background:#FFFFFF;color:#14213B;border-radius:26px;padding:22px 28px;display:grid;justify-items:center;gap:8px;min-width:min(320px,100%);box-shadow:0 20px 60px rgba(0,0,0,.45)}
+.rv-card .place{font-family:var(--font-display);font-weight:800;font-size:22px;color:var(--on-medal);border-radius:999px;padding:2px 18px}
+.rv-card .nm{font-family:var(--font-display);font-weight:800;font-size:clamp(24px,5vw,40px);line-height:1.05}
+.rv-many{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.rv-many .rv-card{min-width:200px;padding:16px}
+.rv-many .rv-card .nm{font-size:24px}
+.drum{font-size:64px}
+@media (prefers-reduced-motion:no-preference){
+  .pop{animation:pop .45s cubic-bezier(.2,1.6,.4,1)}
+  @keyframes pop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
+  .wiggle{animation:wig 1s ease-in-out infinite}
+  @keyframes wig{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}}
+  .drawer{animation:sl .2s ease-out}
+  @keyframes sl{from{transform:translateX(30px);opacity:.6}to{transform:none;opacity:1}}
+  .rt{transition:background .15s,border-color .15s}
+}
+
+.st-head .who .av{display:inline-grid}
+.hab-g{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:14px;align-items:start}
+@media(max-width:900px){.hab-g{grid-template-columns:1fr}}
+.rt .new{position:absolute;top:8px;left:8px;background:var(--coral);color:#FFFFFF;font-size:10.5px;font-weight:900;border-radius:999px;padding:1px 8px;letter-spacing:.04em}
+.att-head{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+.att-row{display:grid;grid-template-columns:auto minmax(170px,1fr) auto auto auto;gap:8px 12px;align-items:center;padding:7px 4px;border-top:1px solid var(--line)}
+.att-row:first-child{border-top:0}
+.att-row.off .who-cell{opacity:.45}
+@media (max-width:720px){.att-row{grid-template-columns:auto 1fr}}
+.cb{width:24px;height:24px;accent-color:var(--brand);cursor:pointer}
+select.pct{border:2px solid var(--line);border-radius:10px;padding:4px 8px;font-weight:800;background:var(--surface)}
+select.pct[disabled]{opacity:.4}
+.confirm{border:2px solid var(--sun);background:var(--sun-soft);color:var(--sun-ink);border-radius:14px;padding:12px;display:grid;gap:8px;font-weight:800}
+.sum-bar{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;border-top:2px solid var(--line);padding-top:10px}
+.msg.s{background:var(--grape-soft);color:var(--grape-ink);justify-self:center;max-width:95%;font-size:12.5px;text-align:center}
+.plan-row{display:grid;grid-template-columns:auto 34px minmax(0,1fr) auto auto;gap:10px;align-items:center;border:2px solid var(--line);border-radius:14px;padding:8px 10px;background:var(--surface)}
+.plan-row.off{opacity:.55}
+.plan-row .em{font-size:22px;text-align:center}
+.plan-row input[type=date]{border:2px solid var(--line);border-radius:10px;padding:4px 8px;font-weight:700;background:var(--surface)}
+.lock-col{color:var(--muted);font-weight:800}
+
+.dob{display:grid;grid-template-columns:1fr 1.3fr 1.2fr;gap:8px}
+.dua-ar{font-family:'Amiri',serif;font-size:28px;line-height:1.9;text-align:right;direction:rtl;font-weight:700;color:var(--fg)}
+.plan-row.plan6{grid-template-columns:auto 34px minmax(0,1fr) auto auto auto}
+@media(max-width:760px){.plan-row.plan6{grid-template-columns:auto 34px 1fr}.plan-row.plan6>*:nth-child(n+4){grid-column:span 1}}
+.modal.wide{width:min(680px,calc(100% - 32px))}
+tr.top td:first-child{color:var(--sun-ink);font-weight:900}
+.tag[data-act]{cursor:pointer}
+.kpi b{overflow-wrap:anywhere}
+.plan-row.plan6>.tag:last-child{min-width:100px;text-align:center;justify-self:end}
+@media (max-width:720px){.att-row{grid-template-columns:auto minmax(0,1fr) auto auto;gap:6px 8px}.att-row>span:empty{display:none}.att-row .tri{grid-column:2/-1}.att-row .who-cell small{font-size:11px}}
+
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div class="scrim" id="scrim" hidden></div>
+<div id="layer"></div>
+<div class="toast" id="toast" role="status" hidden></div>
+<canvas id="confetti" hidden></canvas>
+<script>
+/* ===================================================================
+   Star Quest engine. Pure functions over the model M.
+   The same code runs inside Apps Script (server) and in the app.
+   Dates are 'yyyy-mm-dd' strings; date maths is done in UTC.
+   =================================================================== */
+var SQ = (function () {
+  'use strict';
+  var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+  function D(s) { var p = String(s).split('-'); return new Date(Date.UTC(+p[0], +p[1] - 1, +p[2])); }
+  function iso(d) { return d.getUTCFullYear() + '-' + pad(d.getUTCMonth() + 1) + '-' + pad(d.getUTCDate()); }
+  function addDays(s, n) { var d = D(s); d.setUTCDate(d.getUTCDate() + n); return iso(d); }
+  function dow(s) { return D(s).getUTCDay(); }
+  function diffDays(a, b) { return Math.round((D(b) - D(a)) / 864e5); }
+  var DAYOFF = { Saturday: 0, Sunday: 1, Monday: 2, Tuesday: 3, Wednesday: 4, Thursday: 5, Friday: 6 };
+  var CLASSES = ['Root 1', 'Root 3', 'Root 5', 'Stem 1', 'Stem 3'];
+  var LAUNCH = '2026-10-10';
+  var QN = ['', 'Good', 'Excellent', 'Outstanding'];
+  var BANDS = ['none', 'bronze', 'silver', 'gold', 'diamond'];
+  var BANDN = { none: 'No band yet', bronze: 'Bronze', silver: 'Silver', gold: 'Gold', diamond: 'Diamond' };
+  var PHASES = [{ n: 'Planting', e: '🌱' }, { n: 'Watering', e: '💧' }, { n: 'Growing', e: '🌿' }, { n: 'Strengthening', e: '🌳' }, { n: 'Harvesting', e: '🍎' }];
+  var AWN = { champ: 'Round Champion', streak: 'Streak Master', choice: "Mentor's Choice", canva: 'Best Canva Board', perfect: 'Perfect Attendance', gold: 'Gold Club', academy: 'Academy Champion' };
+  var AWE = { champ: '🏆', streak: '🔥', choice: '💚', canva: '🏠', perfect: '🎯', gold: '🌟', academy: '👑' };
+  var TITLED = ['champ', 'streak', 'choice', 'canva', 'academy'];
+
+  function phaseFor(n) { return n <= 2 ? 0 : n <= 4 ? 1 : n <= 6 ? 2 : n <= 8 ? 3 : 4; }
+  function cache(M) { if (!M._c) M._c = {}; return M._c; }
+  function bump(M) { M._c = {}; }
+  function sid(M) { var c = cache(M); if (!c.sid) { c.sid = {}; M.students.forEach(function (s) { c.sid[s.id] = s; }); } return c.sid; }
+  function active(M) { return M.students.filter(function (s) { return s.status === 'Active'; }); }
+
+  /* ---------------- calendar ---------------- */
+  function roundOfDate(M, d) { for (var i = 0; i < M.rounds.length; i++) if (d >= M.rounds[i].start && d <= M.rounds[i].end) return M.rounds[i].n; return 0; }
+  function curRound(M) {
+    var r = roundOfDate(M, M.today); if (r) return r;
+    if (M.today < M.rounds[0].start) return 1;
+    return M.rounds[M.rounds.length - 1].n;
+  }
+  function round(M, n) { return M.rounds[n - 1]; }
+  function weekOfDate(M, d) { for (var i = 0; i < M.weeks.length; i++) if (d >= M.weeks[i].start && d <= M.weeks[i].end) return M.weeks[i].w; return 0; }
+  function curWeek(M) {
+    var w = weekOfDate(M, M.today); if (w) return w;
+    return M.today < M.weeks[0].start ? 0 : M.weeks.length;
+  }
+  function week(M, w) { return M.weeks[w - 1]; }
+  function roundWeeks(rn) { return [2 * rn - 1, 2 * rn]; }
+  /* reveal time in IST (UTC+5:30), default 7:00 PM */
+  function revealMs(M, rn) { var p = round(M, rn).reveal.split('-'); return Date.UTC(+p[0], +p[1] - 1, +p[2], M.revealHour == null ? 19 : M.revealHour, M.revealMin || 0) - 330 * 60000; }
+  function released(M, rn) { return (M.released || []).indexOf(rn) >= 0; }
+  function revealOpen(M, rn) { return released(M, rn) && M.nowMs >= revealMs(M, rn); }
+  /* Mystery Mode: from Thursday of the round's second week until results open */
+  function mysteryOn(M, rn) { var r = round(M, rn); return M.today >= addDays(r.end, -1) && !revealOpen(M, rn); }
+  function roundStarted(M, rn) { return round(M, rn).start <= M.today; }
+  function roundEnded(M, rn) { return round(M, rn).end < M.today; }
+
+  /* ---------------- groups ---------------- */
+  function groupOf(s, kind) { return kind === 'T' ? (s.type === 'Individual' ? 'IND:' + s.id : s.batch) : kind === 'Q' ? s.thg : s.cls; }
+  function groupKids(M, kind, g) { return active(M).filter(function (s) { return groupOf(s, kind) === g; }); }
+  function batchInfo(M, name) { for (var i = 0; i < M.batches.length; i++) if (M.batches[i].name === name) return M.batches[i]; return null; }
+  function thInfo(M, name) { for (var i = 0; i < M.thGroups.length; i++) if (M.thGroups[i].name === name) return M.thGroups[i]; return null; }
+  function groupInfo(M, kind, g) { return kind === 'T' ? batchInfo(M, g) : kind === 'Q' ? thInfo(M, g) : null; }
+  function groupLabel(M, kind, g) {
+    if (kind === 'T' && String(g).indexOf('IND:') === 0) { var s = sid(M)[g.slice(4)]; return 'Individual · ' + (s ? s.name : g.slice(4)); }
+    return g || '—';
+  }
+  /* the date of a group's class in week w (null when the day is not fixed) */
+  function classDate(M, kind, g, w) {
+    var info = groupInfo(M, kind, g); var wk = week(M, w); if (!wk) return null;
+    if (!info || DAYOFF[info.day] == null) return null;
+    return addDays(wk.start, DAYOFF[info.day]);
+  }
+  function teacherOf(M, kind, g) {
+    if (kind === 'T') { if (String(g).indexOf('IND:') === 0) { var s = sid(M)[g.slice(4)]; return s ? s.teacher : ''; } var b = batchInfo(M, g); return b ? b.faculty : ''; }
+    if (kind === 'Q') { var t = thInfo(M, g); return t ? t.teacher : ''; }
+    return '';
+  }
+  function groupsFor(M, kind) {
+    var seen = {}, out = [];
+    if (kind === 'T') M.batches.forEach(function (b) { if (b.name !== 'Individual' && !seen[b.name]) { seen[b.name] = 1; out.push(b.name); } });
+    if (kind === 'Q') M.thGroups.forEach(function (g) { if (!seen[g.name]) { seen[g.name] = 1; out.push(g.name); } });
+    if (kind === 'R') return CLASSES.slice();
+    active(M).forEach(function (s) { var g = groupOf(s, kind); if (g && !seen[g]) { seen[g] = 1; out.push(g); } });
+    return out;
+  }
+
+  /* ---------------- marks access ---------------- */
+  function mk(M, id) { return (M.marks && M.marks[id]) || null; }
+  function isNum(v) { return typeof v === 'number' && !isNaN(v); }
+
+  /* ---------------- scoring ---------------- */
+  function bandOf(M, p) { var B = M.bands; return p >= B.diamond ? 'diamond' : p >= B.gold ? 'gold' : p >= B.silver ? 'silver' : p >= B.bronze ? 'bronze' : 'none'; }
+  function bonusPts(M, type) { return type === 'shine' ? M.P.SH : type === 'mentor' ? M.P.MA : type === 'aotw' ? M.P.AW : 0; }
+  function bonusOf(M, id) {
+    var c = cache(M); if (!c.bon) { c.bon = {}; (M.bonus || []).forEach(function (b) { (c.bon[b.id] = c.bon[b.id] || []).push(b); }); }
+    return c.bon[id] || [];
+  }
+  function score(M, s, rn) {
+    var c = cache(M), key = 'sc|' + s.id + '|' + rn; if (c[key]) return c[key];
+    var P = M.P, m = mk(M, s.id), r = round(M, rn);
+    var o = { T: 0, Tm: 0, Q: 0, Qm: 0, R: 0, Rm: 0, A: 0, Am: 0, live: 0, liveT: 0, actOn: 0, sub: 0, canva: 0, perfect: 0, lessons: 0 };
+    if (m && s.status === 'Active') {
+      roundWeeks(rn).forEach(function (w) {
+        var i = w - 1, v;
+        v = m.T[i]; if (isNum(v)) { o.Tm += P.T; o.T += P.T * v / 100; o.liveT++; if (v > 0) o.live++; }
+        v = m.Q[i]; if (v && isNum(v[0])) { o.Qm += P.Q + P.L; o.Q += P.Q * v[0] / 100 + (v[1] ? P.L : 0); o.liveT++; if (v[0] > 0) o.live++; if (v[1]) o.lessons++; }
+        (m.R[i] || []).forEach(function (x) { if (isNum(x)) { o.Rm += P.R; o.R += P.R * x / 100; } });
+        v = m.A[i]; if (v && (v[0] === 'on' || v[0] === 'late' || v[0] === 'miss')) {
+          o.Am += P.AON + P.QO;
+          if (v[0] === 'on') { o.A += P.AON; o.actOn++; } else if (v[0] === 'late') o.A += P.ALATE;
+          if (v[0] !== 'miss') o.A += [0, P.QG, P.QE, P.QO][v[1] || 0];
+        }
+      });
+      bonusOf(M, s.id).forEach(function (b) { if (b.date >= r.start && b.date <= r.end) o.sub += bonusPts(M, b.type); });
+      if (m.C[rn - 1] === 'Approved') o.canva = P.CV;
+      if (roundEnded(M, rn) && o.liveT > 0 && o.live === o.liveT) o.perfect = P.PA;
+    }
+    o.bonus = Math.min(o.sub, P.CAP) + o.canva + o.perfect;
+    o.core = o.T + o.Q + o.R + o.A; o.max = o.Tm + o.Qm + o.Rm + o.Am; o.total = o.core + o.bonus;
+    o.pct = o.max ? o.total / o.max * 100 : 0; o.score = o.max ? Math.round(o.pct) : null;
+    o.band = o.max ? bandOf(M, o.score) : 'none';   /* band from the score shown (rounded), like the Sheet */
+    return (c[key] = o);
+  }
+  function rankList(M, rn, cls) {
+    var c = cache(M), key = 'rk|' + rn + '|' + cls; if (c[key]) return c[key];
+    var L = active(M).filter(function (s) { return cls === 'all' || s.cls === cls; })
+      .map(function (s) { return { s: s, sc: score(M, s, rn) }; }).filter(function (x) { return x.sc.max > 0; });
+    L.sort(function (a, b) { return b.sc.pct - a.sc.pct || b.sc.live - a.sc.live || b.sc.actOn - a.sc.actOn || (a.s.name < b.s.name ? -1 : 1); });
+    /* same score (rounded, as shown) = same rank, exactly like the Scores tab in the Sheet */
+    var prev = null, rk = 0; L.forEach(function (x, i) { var p = Math.round(x.sc.pct); if (p !== prev) { rk = i + 1; prev = p; } x.rank = rk; });
+    return (c[key] = L);
+  }
+  function rankOf(M, s, rn) { var L = rankList(M, rn, s.cls); for (var i = 0; i < L.length; i++) if (L[i].s.id === s.id) return L[i].rank; return null; }
+  function topN(M, cls) { return cls === 'all' ? (M.topN.academy || 20) : (M.topN[cls] || 10); }
+  function classCup(M, rn) {
+    return CLASSES.map(function (c) {
+      var L = rankList(M, rn, c); var v = L.length ? L.reduce(function (a, x) { return a + Math.min(100, x.sc.pct); }, 0) / L.length : 0;
+      return { c: c, v: v, n: L.length };
+    }).sort(function (a, b) { return b.v - a.v; });
+  }
+
+  /* ---------------- habits ---------------- */
+  function activeOn(M, d) {
+    return M.habits.filter(function (h) { return h.on && h.start && h.start <= d; }).map(function (h) { return h.no; });
+  }
+  function nextRoutine(M, d) {
+    var L = M.habits.filter(function (h) { return h.on && h.start && h.start > d; }).sort(function (a, b) { return a.start < b.start ? -1 : 1; });
+    return L[0] || null;
+  }
+  function habit(M, no) { for (var i = 0; i < M.habits.length; i++) if (M.habits[i].no === no) return M.habits[i]; return null; }
+  /* log: { 'yyyy-mm-dd': [routine numbers] } */
+  function habitInfo(M, log, today) {
+    today = today || M.today; log = log || {};
+    var S = M.stars, share = M.streakShare || 0.5;
+    var days = Object.keys(log).filter(function (d) { return d <= today; }).sort();
+    var stars = 0, actCache = {};
+    var act = function (d) { return actCache[d] || (actCache[d] = activeOn(M, d)); };
+    var allDone = function (d) { var a = act(d), x = log[d] || []; return a.length > 0 && a.every(function (n) { return x.indexOf(n) >= 0; }); };
+    days.forEach(function (d) { var x = (log[d] || []).filter(function (n) { return act(d).indexOf(n) >= 0; }); stars += x.length * S.habit + (allDone(d) ? S.allDone : 0); });
+    var ok = function (d) { var a = act(d); var x = log[d] || []; return a.length > 0 && x.length >= Math.ceil(a.length * share); };
+    var cur = 0, d = ok(today) ? today : addDays(today, -1);
+    while (d >= LAUNCH && ok(d)) { cur++; d = addDays(d, -1); }
+    var mastery = [];
+    M.habits.forEach(function (h) {
+      var run = 0, got = null;
+      for (var x = days.length ? days[0] : today; x <= today; x = addDays(x, 1)) {
+        if ((log[x] || []).indexOf(h.no) >= 0) { run++; if (run >= 7 && !got) got = x; } else run = 0;
+      }
+      if (got) mastery.push({ no: h.no, date: got });
+    });
+    var weekly = [], prevAll = false;
+    for (var w = LAUNCH; addDays(w, 6) < today; w = addDays(w, 7)) {
+      var all = true; for (var i = 0; i < 7; i++) if (!allDone(addDays(w, i))) { all = false; break; }
+      if (all) weekly.push({ k: 'streak', w: w }); if (all && prevAll) weekly.push({ k: 'consist', w: w }); prevAll = all;
+    }
+    var longest = {};
+    M.rounds.forEach(function (r) {
+      var best = 0, run = 0, end = r.end < today ? r.end : today;
+      for (var x = r.start; x <= end; x = addDays(x, 1)) { if (ok(x)) { run++; if (run > best) best = run; } else run = 0; }
+      longest[r.n] = best;
+    });
+    var checkins7 = 0; for (var k = 1; k <= 7; k++) if (log[addDays(today, -k)] && log[addDays(today, -k)].length) checkins7++;
+    return { stars: stars, cur: cur, mastery: mastery, weekly: weekly, longest: longest, checkins7: checkins7, lastCheck: days.length ? days[days.length - 1] : null, today: !!(log[today] && log[today].length) };
+  }
+  var WEEKLY = [{ k: 'streak', n: '7-Day Streak Star', e: '🔥' }, { k: 'consist', n: 'Consistency Champion', e: '🏅' }];
+  function starsOf(M, s, hs) {
+    var t = 0; M.rounds.forEach(function (r) { if (r.start <= M.today) t += score(M, s, r.n).total; });
+    hs = hs || { stars: 0, mastery: [], weekly: [] };
+    return Math.round(t + hs.stars + hs.mastery.length * M.stars.mastery + hs.weekly.length * M.stars.weekly + M.stars.welcome);
+  }
+  function levelOf(M, st) { var i = 0; M.levels.forEach(function (l, j) { if (st >= l.min) i = j; }); return i; }
+
+  /* ---------------- awards (computed when a round is released) ---------------- */
+  function computeAwards(M, rn, hsMap, choices) {
+    var out = []; choices = choices || {};
+    CLASSES.forEach(function (c) {
+      var L = rankList(M, rn, c), titled = {};
+      var champs = L.slice(0, 3);
+      champs.forEach(function (x, i) { out.push({ id: x.s.id, k: 'champ', place: c === 'Root 1' ? 0 : i + 1, cls: c }); titled[x.s.id] = 1; });
+      var sm = L.filter(function (x) { return !titled[x.s.id]; }).map(function (x) { return { x: x, l: ((hsMap[x.s.id] || {}).longest || {})[rn] || 0 }; })
+        .sort(function (a, b) { return b.l - a.l || b.x.sc.pct - a.x.sc.pct; })[0];
+      if (sm && sm.l > 0) { out.push({ id: sm.x.s.id, k: 'streak', cls: c, note: sm.l + ' days' }); titled[sm.x.s.id] = 1; }
+      var ch = choices[c] || {};
+      if (ch.choice && !titled[ch.choice]) { out.push({ id: ch.choice, k: 'choice', cls: c }); titled[ch.choice] = 1; }
+      if (ch.canva && !titled[ch.canva]) { out.push({ id: ch.canva, k: 'canva', cls: c }); titled[ch.canva] = 1; }
+      L.forEach(function (x) {
+        if (x.sc.perfect) out.push({ id: x.s.id, k: 'perfect', cls: c });
+        if (x.sc.band === 'gold' || x.sc.band === 'diamond') out.push({ id: x.s.id, k: 'gold', cls: c });
+      });
+    });
+    var top = rankList(M, rn, 'all')[0]; if (top) out.push({ id: top.s.id, k: 'academy', cls: top.s.cls });
+    out.forEach(function (a) { var s = sid(M)[a.id]; a.name = s ? s.name : ''; a.score = s ? score(M, s, rn).score : null; });
+    return out;
+  }
+
+  /* ---------------- helpers for staff screens ---------------- */
+  /* is a group's class in week w still waiting for attendance? */
+  function unmarked(M, kind, g, w, slot) {
+    var wk = week(M, w); if (!wk || wk.start > M.today) return false;
+    var kids = groupKids(M, kind, g).filter(function (s) { return !s.joined || s.joined <= wk.end; }); if (!kids.length) return false;
+    var cd = classDate(M, kind, g, w);
+    if (kind === 'R' || !cd) { if (wk.end >= M.today) return false; } else if (cd >= M.today) return false;
+    return kids.every(function (s) {
+      var m = mk(M, s.id); if (!m) return true; var i = w - 1;
+      if (kind === 'T') return m.T[i] == null;
+      if (kind === 'Q') return !m.Q[i] || m.Q[i][0] == null;
+      return !m.R[i] || m.R[i][slot] == null;
+    });
+  }
+  function unmarkedList(M) {
+    var out = [], cw = curWeek(M);
+    for (var w = Math.max(1, cw - 1); w <= cw; w++) {
+      ['T', 'Q'].forEach(function (kind) { groupsFor(M, kind).forEach(function (g) { if (unmarked(M, kind, g, w)) out.push({ kind: kind, g: g, w: w, date: classDate(M, kind, g, w) }); }); });
+      CLASSES.forEach(function (c) { [0, 1, 2].forEach(function (k) { if (unmarked(M, 'R', c, w, k)) out.push({ kind: 'R', g: c, w: w, slot: k }); }); });
+    }
+    return out;
+  }
+  function activityToMark(M, g, w) {
+    var cd = classDate(M, 'T', g, w), wk = week(M, w);
+    if (!wk || (cd ? cd >= M.today : wk.start > M.today)) return 0;
+    var kids = groupKids(M, 'T', g).filter(function (s) { return !s.joined || s.joined <= wk.end; });
+    return kids.filter(function (s) { var m = mk(M, s.id); var t = m && m.T[w - 1]; var a = m && m.A[w - 1]; return t !== 'E' && t !== 0 && (!a || !a[0]); }).length;
+  }
+
+  return {
+    D: D, iso: iso, addDays: addDays, dow: dow, diffDays: diffDays, DAYOFF: DAYOFF, CLASSES: CLASSES, LAUNCH: LAUNCH, QN: QN,
+    BANDS: BANDS, BANDN: BANDN, PHASES: PHASES, AWN: AWN, AWE: AWE, TITLED: TITLED, WEEKLY: WEEKLY,
+    phaseFor: phaseFor, bump: bump, sid: sid, active: active,
+    roundOfDate: roundOfDate, curRound: curRound, round: round, weekOfDate: weekOfDate, curWeek: curWeek, week: week, roundWeeks: roundWeeks,
+    revealMs: revealMs, released: released, revealOpen: revealOpen, mysteryOn: mysteryOn, roundStarted: roundStarted, roundEnded: roundEnded,
+    groupOf: groupOf, groupKids: groupKids, groupInfo: groupInfo, groupLabel: groupLabel, classDate: classDate, teacherOf: teacherOf, groupsFor: groupsFor,
+    batchInfo: batchInfo, thInfo: thInfo, bandOf: bandOf, bonusPts: bonusPts, bonusOf: bonusOf,
+    score: score, rankList: rankList, rankOf: rankOf, topN: topN, classCup: classCup,
+    activeOn: activeOn, nextRoutine: nextRoutine, habit: habit, habitInfo: habitInfo, starsOf: starsOf, levelOf: levelOf,
+    computeAwards: computeAwards, unmarked: unmarked, unmarkedList: unmarkedList, activityToMark: activityToMark
+  };
+})();
+
+</script>
+<script>
+/* ===================================================================
+   Qaaf Star Quest · app (part 1: core, storage, API, shared UI)
+   =================================================================== */
+(function () {
+'use strict';
+const API = "https://script.google.com/macros/s/AKfycbzVc1hrY51WwpLs2p1gn88C5UJzqEpUBGefY10FMuEMcjuC7IuTq4O3fGp9warhVcIxWQ/exec";
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const fmt = s => { if (!s) return ''; const d = SQ.D(s); return d.getUTCDate() + ' ' + MON[d.getUTCMonth()]; };
+const fmtDay = s => s ? DOW[SQ.D(s).getUTCDay()] + ' ' + fmt(s) : '';
+const sum = a => a.reduce((x, y) => x + y, 0);
+const avg = a => a.length ? sum(a) / a.length : 0;
+const hash = s => { let h = 0; for (const c of String(s)) h = (h * 31 + c.charCodeAt(0)) | 0; return Math.abs(h); };
+const r1 = v => Math.round(v * 10) / 10;
+const initials = n => { const p = String(n || '?').split(/[\s.]+/).filter(Boolean); return ((p[0] || '?')[0] + ((p[1] || '')[0] || '')).toUpperCase(); };
+const shortName = n => { const p = String(n || '').split(/[\s.]+/).filter(Boolean); return (p[0] || '') + (p[1] ? ' ' + p[1][0].toUpperCase() + '.' : ''); };
+const firstName = n => String(n || '').split(/[\s.]+/).filter(Boolean)[0] || '';
+const nameCase = n => /[a-z]/.test(n) ? n : String(n).toLowerCase().replace(/(^|[\s.])([a-z])/g, (m, a, b) => a + b.toUpperCase());
+const av = (s, size) => '<span class="av av-' + (hash(s.id || s.name) % 5) + '" style="--s:' + (size || 40) + 'px" aria-hidden="true">' + esc(initials(s.name)) + '</span>';
+
+/* ---------- storage (always guarded) ---------- */
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('sq_' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem('sq_' + k, JSON.stringify(v)); } catch (e) {} },
+  del(k) { try { localStorage.removeItem('sq_' + k); } catch (e) {} }
+};
+
+/* ---------- state ---------- */
+const state = {
+  token: store.get('token', null), role: store.get('role', null), user: store.get('user', null),
+  D: null, M: null, view: null, kid: null, loading: false, offline: false, lastBoot: 0,
+  login: { role: null, err: '', names: null, pin: '', pick: null, id: '', busy: false },
+  lbRound: null, lbTab: 'class', lbClass: null, ckDate: null,
+  fac: { g: null, w: null, sub: false, draft: {}, sg: null, sw: null, pick: [], reason: {} },
+  att: { kind: 'T', g: null, w: null, slot: 0, draft: null, key: '', confirm: false },
+  msgOpen: null, stf: { q: '', cls: '', st: 'Active', band: '' }, drawer: null, cv: { rn: null, cls: '' }, edit: null, busy: false
+};
+
+/* ---------- API ---------- */
+async function api(action, body) {
+  const payload = Object.assign({ action, token: state.token }, body || {});
+  let res;
+  try {
+    const r = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload), redirect: 'follow' });
+    res = await r.json();
+  } catch (e) {
+    const err = new Error('No connection. Please check your internet and try again.'); err.net = true; throw err;
+  }
+  if (!res.ok) {
+    if (res.code === 'auth') { signOut(true); }
+    const err = new Error(res.error || 'Something went wrong.'); err.code = res.code; throw err;
+  }
+  return res;
+}
+function setData(D) {
+  D.students = (D.students || []).map(s => Object.assign({}, s, { name: nameCase(s.name) }));
+  state.D = D; state.M = D; SQ.bump(D); state.skew = (D.nowMs || Date.now()) - Date.now();
+  if (!state.lbRound) state.lbRound = SQ.curRound(D);
+  if (!state.ckDate || state.ckDate > D.today || state.ckDate < SQ.addDays(D.today, -2)) state.ckDate = D.today;
+  if (state.role === 'parent' && (!state.kid || !D.students.some(s => s.id === state.kid))) state.kid = D.students[0] && D.students[0].id;
+}
+async function boot(force) {
+  if (!state.token) { render(); return; }
+  const cached = store.get('data_' + state.role, null);
+  if (cached && !state.D) { setData(cached); render(); }
+  if (!state.D) { state.loading = true; render(); }
+  try {
+    const res = await api(force ? 'refresh' : 'boot');
+    setData(res.data); store.set('data_' + state.role, res.data); state.offline = false; state.lastBoot = Date.now();
+    flushQueue();
+  } catch (e) {
+    if (e.net) { state.offline = true; if (!state.D) toast(e.message); }
+    else if (e.code !== 'auth') toast(e.message);
+  }
+  state.loading = false; render();
+}
+function signOut(expired) {
+  ['token', 'role', 'user'].forEach(k => store.del(k));
+  if (state.role) store.del('data_' + state.role);
+  Object.assign(state, { token: null, role: null, user: null, D: null, M: null, view: null, kid: null, drawer: null });
+  state.login = { role: null, err: expired ? 'Please sign in again.' : '', names: null, pin: '', pick: null, id: '', busy: false };
+  closeLayer(); render();
+}
+/* write helper: run, update locally, refresh quietly */
+async function save(action, body, okMsg, after) {
+  if (state.busy) return false;
+  state.busy = true; render();
+  try {
+    const r = await api(action, body);
+    if (after) after(r);
+    SQ.bump(state.M); store.set('data_' + state.role, state.D);
+    state.busy = false; render(); if (okMsg) toast(okMsg);
+    setTimeout(() => boot(), 1200);
+    return r;
+  } catch (e) { state.busy = false; render(); toast(e.message); return false; }
+}
+
+/* ---------- offline queue for habit check-ins ---------- */
+let qTimer = null;
+function queueHabit(sid, date, done) {
+  const q = store.get('queue', {}); q[sid + '|' + date] = { sid, date, done }; store.set('queue', q);
+  clearTimeout(qTimer); qTimer = setTimeout(flushQueue, 900);
+}
+async function flushQueue() {
+  const q = store.get('queue', {}); const keys = Object.keys(q); if (!keys.length || !state.token || state.role !== 'parent') return;
+  for (const k of keys) {
+    try { await api('habit.save', q[k]); const q2 = store.get('queue', {}); if (JSON.stringify(q2[k]) === JSON.stringify(q[k])) delete q2[k]; store.set('queue', q2); state.offline = false; }
+    catch (e) { if (e.net) { state.offline = true; render(); return; } const q2 = store.get('queue', {}); delete q2[k]; store.set('queue', q2); toast(e.message); }
+  }
+}
+window.addEventListener('online', () => { flushQueue(); boot(); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden && state.token && Date.now() - state.lastBoot > 5 * 60000) boot(); });
+
+/* ---------- art ---------- */
+function hudhud(w) {
+  const f = [-58, -32, -8, 16, 40].map(a => '<g transform="rotate(' + a + ' 40 34)"><ellipse cx="40" cy="17" rx="5.2" ry="13" fill="#F2B270"/><ellipse cx="40" cy="6.5" rx="4.2" ry="4.6" fill="#25263A"/><ellipse cx="40" cy="11.5" rx="4.4" ry="1.6" fill="#FFFFFF"/></g>').join('');
+  return '<svg viewBox="0 0 124 112" width="' + (w || 64) + '" height="' + Math.round((w || 64) * 112 / 124) + '" aria-hidden="true">' +
+    '<path d="M88 70 L120 86 L114 96 L84 82 Z" fill="#25263A"/><path d="M96 74 L104 78 M104 82 L112 86" stroke="#FFFFFF" stroke-width="3"/>' + f +
+    '<ellipse cx="68" cy="70" rx="31" ry="23" fill="#E9A15B"/><path d="M52 64 Q74 50 96 66 Q80 86 56 80 Z" fill="#25263A"/><path d="M60 64 L66 79 M70 60 L76 80 M80 61 L85 78" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round"/>' +
+    '<circle cx="41" cy="48" r="17" fill="#E9A15B"/><path d="M26 50 Q12 54 2 62 Q15 52 27 54 Z" fill="#4A3A33"/><circle cx="37" cy="45" r="4.6" fill="#FFFFFF"/><circle cx="36.4" cy="45.4" r="2.6" fill="#1D1D2B"/><circle cx="35.6" cy="44.4" r=".9" fill="#FFFFFF"/>' +
+    '<circle cx="46" cy="54" r="3.6" fill="#FF8C6B" opacity=".7"/><path d="M62 91 L60 104 M60 104 L55 106 M60 104 L64 107 M74 91 L74 104 M74 104 L69 106 M74 104 L78 107" stroke="#4A3A33" stroke-width="2.6" stroke-linecap="round" fill="none"/></svg>';
+}
+function treeSvg(ph, w) {
+  const W = w || 120; const cs = [[], [[80, 70, 16], [66, 80, 12], [94, 80, 12]], [[80, 60, 20], [62, 74, 15], [98, 74, 15], [80, 82, 14]], [[80, 50, 24], [58, 66, 18], [102, 66, 18], [68, 84, 15], [92, 84, 15]], [[80, 46, 26], [56, 62, 20], [104, 62, 20], [64, 84, 17], [96, 84, 17], [80, 74, 18]]][ph];
+  const th = [18, 30, 42, 52, 58][ph], tw = [4, 7, 9, 11, 12][ph];
+  let g = '<ellipse cx="80" cy="124" rx="58" ry="9" fill="#9FD88A"/>';
+  if (ph === 0) g += '<path d="M80 122 L80 100" stroke="#4E8F3A" stroke-width="4" stroke-linecap="round"/><ellipse cx="70" cy="98" rx="11" ry="6" transform="rotate(-25 70 98)" fill="#5FBF4A"/><ellipse cx="90" cy="96" rx="11" ry="6" transform="rotate(25 90 96)" fill="#4CAF3A"/>';
+  else {
+    g += '<rect x="' + (80 - tw / 2) + '" y="' + (122 - th) + '" width="' + tw + '" height="' + th + '" rx="3" fill="#8B5E3C"/>';
+    cs.forEach((c, i) => g += '<circle cx="' + c[0] + '" cy="' + (c[1] + (4 - ph) * 6) + '" r="' + c[2] + '" fill="' + (i % 2 ? '#3FA34D' : '#55BB52') + '"/>');
+    if (ph === 4) [[64, 56], [96, 52], [80, 38], [60, 82], [100, 80], [82, 70]].forEach(p => g += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="5" fill="#FF6A47"/>');
+  }
+  return '<svg viewBox="0 0 160 136" width="' + W + '" height="' + Math.round(W * 136 / 160) + '" aria-hidden="true">' + g + '</svg>';
+}
+const PZ = { champ: 'pz-champ', streak: 'pz-streak', choice: 'pz-choice', canva: 'pz-canva', perfect: 'pz-perfect', gold: 'pz-gold', academy: 'pz-academy' };
+function awardTitle(a) { return a.k === 'champ' ? (a.place ? ['', '1st Place', '2nd Place', '3rd Place'][a.place] : 'Round Champion') : SQ.AWN[a.k]; }
+function roundLabel(rn) { const r = SQ.round(state.M, rn); return 'Round ' + rn + ' · ' + fmt(r.start) + '–' + fmt(r.end) + ' ' + SQ.D(r.end).getUTCFullYear(); }
+function poster(a) {
+  return '<div class="poster ' + (PZ[a.k] || 'pz-champ') + '"><div class="pz-top">QAAF ACADEMY<span>STAR QUEST · SEASON 1</span></div><div class="pz-ar" lang="ar">ما شاء الله</div><div class="pz-av">' + esc(initials(a.name)) + '</div><div class="pz-name">' + esc(nameCase(a.name)) + '</div><div class="pz-award">' + (SQ.AWE[a.k] || '⭐') + ' ' + esc(awardTitle(a)) + '</div><div class="pz-foot">' + esc(a.cls) + ' · ' + esc(roundLabel(a.rn)) + '</div></div>';
+}
+/* poster as an image for sharing (1080 × 1350) */
+const PZC = { champ: ['#FFB81F', '#FF6A47'], streak: ['#FF6A47', '#C2410C'], choice: ['#0B9B6A', '#067650'], canva: ['#2F86EB', '#1F5FB8'], perfect: ['#7A5CF0', '#4B32B8'], gold: ['#E8A400', '#A86F00'], academy: ['#14213B', '#7A5CF0'] };
+function posterCanvas(a) {
+  const c = document.createElement('canvas'); c.width = 1080; c.height = 1350; const x = c.getContext('2d'); if (!x) return null;
+  const col = PZC[a.k] || PZC.champ; const g = x.createLinearGradient(0, 0, 1080, 1350); g.addColorStop(0, col[0]); g.addColorStop(1, col[1]);
+  x.fillStyle = g; x.fillRect(0, 0, 1080, 1350);
+  x.fillStyle = 'rgba(255,255,255,.12)'; for (let i = 0; i < 26; i++) { x.beginPath(); x.arc((i * 211) % 1080, (i * 337) % 1350, 8 + (i % 5) * 6, 0, 7); x.fill(); }
+  x.fillStyle = '#FFFFFF'; x.textAlign = 'center';
+  x.font = '800 44px "Baloo 2", Nunito, sans-serif'; x.fillText('QAAF ACADEMY', 540, 130);
+  x.font = '700 30px Nunito, sans-serif'; x.fillText('STAR QUEST · SEASON 1', 540, 180);
+  x.font = '700 72px Amiri, serif'; x.fillText('ما شاء الله', 540, 300);
+  x.beginPath(); x.arc(540, 520, 160, 0, 7); x.fillStyle = 'rgba(255,255,255,.95)'; x.fill();
+  x.fillStyle = col[1]; x.font = '800 130px "Baloo 2", Nunito, sans-serif'; x.fillText(initials(a.name), 540, 565);
+  x.fillStyle = '#FFFFFF'; let fs = 86; const nm = nameCase(a.name); x.font = '800 ' + fs + 'px "Baloo 2", Nunito, sans-serif';
+  while (x.measureText(nm).width > 960 && fs > 40) { fs -= 4; x.font = '800 ' + fs + 'px "Baloo 2", Nunito, sans-serif'; }
+  x.fillText(nm, 540, 800);
+  x.font = '800 70px "Baloo 2", Nunito, sans-serif'; x.fillText((SQ.AWE[a.k] || '⭐') + ' ' + awardTitle(a), 540, 930);
+  x.font = '700 40px Nunito, sans-serif'; x.fillText(a.cls + ' · ' + roundLabel(a.rn), 540, 1230);
+  return c;
+}
+async function sharePoster(a) {
+  const c = posterCanvas(a); if (!c) { toast('Sharing is not available on this device.'); return; }
+  const blob = await new Promise(r => c.toBlob(r, 'image/png')); if (!blob) { toast('Could not make the image.'); return; }
+  const file = new File([blob], 'Qaaf-' + firstName(a.name) + '-' + a.k + '.png', { type: 'image/png' });
+  if (navigator.canShare && navigator.canShare({ files: [file] })) { try { await navigator.share({ files: [file], text: 'Masha Allah! ' + nameCase(a.name) + ' · ' + awardTitle(a) + ' · Qaaf Star Quest' }); } catch (e) {} return; }
+  const u = URL.createObjectURL(blob); const l = document.createElement('a'); l.href = u; l.download = file.name; document.body.appendChild(l); l.click(); l.remove(); setTimeout(() => URL.revokeObjectURL(u), 4000);
+  toast('Poster saved. Send it on WhatsApp from your downloads.');
+}
+
+/* ---------- toast, confetti, layers ---------- */
+let tt; function toast(m) { const t = $('#toast'); if (!t) return; t.textContent = m; t.hidden = false; clearTimeout(tt); tt = setTimeout(() => t.hidden = true, 3200); }
+function confetti() {
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const c = $('#confetti'); if (!c || !c.getContext) return; const ctx = c.getContext('2d'); if (!ctx) return;
+  c.hidden = false; c.width = innerWidth; c.height = innerHeight;
+  const cs = getComputedStyle(document.documentElement); const cols = ['--sun', '--coral', '--sky', '--brand', '--grape'].map(v => cs.getPropertyValue(v).trim() || '#FFB81F');
+  const P = Array.from({ length: 140 }, () => ({ x: Math.random() * c.width, y: -20 - Math.random() * c.height * .4, vx: (Math.random() - .5) * 3, vy: 2 + Math.random() * 4, r: Math.random() * 6.28, s: 5 + Math.random() * 6, c: cols[Math.floor(Math.random() * cols.length)] }));
+  let f = 0; (function tick() { ctx.clearRect(0, 0, c.width, c.height); P.forEach(p => { p.x += p.vx; p.y += p.vy; p.r += .1; ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r); ctx.fillStyle = p.c; ctx.fillRect(-p.s / 2, -p.s / 4, p.s, p.s / 2); ctx.restore(); }); if (++f < 150) requestAnimationFrame(tick); else { ctx.clearRect(0, 0, c.width, c.height); c.hidden = true; } })();
+}
+function openLayer(html, kind) { $('#layer').innerHTML = '<div class="' + (kind || 'modal') + '" role="dialog" aria-modal="true">' + html + '</div>'; $('#scrim').hidden = false; const x = $('#layer .x'); if (x) x.focus(); }
+function closeLayer() { $('#layer').innerHTML = ''; $('#scrim').hidden = true; state.drawer = null; RV = null; }
+function duaHtml(h) {
+  return '<div class="row between"><h2 style="font-size:22px">' + h.e + ' ' + esc(h.n) + '</h2><button class="x" data-act="close" aria-label="Close">×</button></div>' +
+    '<div class="hint sun">🏅 Badge: <b>' + esc(h.b) + '</b> · do it 7 days in a row</div><p class="small muted" style="font-weight:800">THE DUA</p>' +
+    (h.ar ? '<p class="dua-ar" lang="ar" dir="rtl">' + esc(h.ar) + '</p>' : '') +
+    '<p style="font-weight:800;font-size:17px">' + esc(h.tr) + '</p><p class="muted" style="font-weight:700">' + esc(h.t) + '</p>' + (h.p ? '<div class="hint ok">💬 “' + esc(h.p) + '”</div>' : '');
+}
+const MSG_ST = { new: ['Sent', 'warn'], assigned: ['With teacher', 'info'], done: ['Answered', 'ok'], closed: ['Answered', 'ok'] };
+const KINDN = { T: 'Tarbiya live', Q: 'Thartheel live', R: 'Recorded' };
+const bandTag = b => '<span class="band b-' + b + '"><i></i>' + SQ.BANDN[b] + '</span>';
+const kpi = (l, v, s, c, act, k) => '<' + (act ? 'button data-act="' + act + '"' + (k ? ' data-k="' + k + '"' : '') : 'div') + ' class="kpi ' + (c || '') + '"><span>' + l + '</span><b class="num">' + v + '</b>' + (s ? '<small>' + s + '</small>' : '') + '</' + (act ? 'button' : 'div') + '>';
+const whoCell = (s, sub) => '<div class="who-cell">' + av(s, 32) + '<div><b>' + esc(s.name) + '</b><small>' + esc(sub == null ? s.id : sub) + '</small></div></div>';
+function countdown(ms) {
+  const d = ms - (Date.now() + (state.skew || 0)); if (d <= 0) return 'now';
+  const days = Math.floor(d / 864e5), hrs = Math.floor(d % 864e5 / 36e5), mins = Math.floor(d % 36e5 / 6e4);
+  return days ? days + ' day' + (days > 1 ? 's' : '') + ' ' + hrs + ' hour' + (hrs === 1 ? '' : 's') : hrs ? hrs + ' hour' + (hrs === 1 ? '' : 's') + ' ' + mins + ' min' : mins + ' min';
+}
+function revealText(rn) { const r = SQ.round(state.M, rn); return fmtDay(r.reveal) + ' · ' + (state.M.revealHour > 12 ? state.M.revealHour - 12 : state.M.revealHour) + (state.M.revealMin ? ':' + String(state.M.revealMin).padStart(2, '0') : '') + ' PM'; }
+/* ===================================================================
+   part 2: login and the parent app
+   =================================================================== */
+function vLogin() {
+  const L = state.login;
+  let h = '<div class="login"><section class="hero"><span class="wiggle" style="display:inline-block">' + hudhud(108) + '</span><div style="display:grid;gap:8px;min-width:0;flex:1"><h1>Qaaf <span>Star Quest</span></h1><p>Season 1 · Learn, shine and collect stars every day!</p></div></section>';
+  if (!L.role) {
+    h += '<div class="roles">' + [
+      ['parent', '👨‍👩‍👧', 'Parent', 'See your child’s stars, check in habits and message the mentor.', 'var(--sun-soft)'],
+      ['faculty', '👩‍🏫', 'Faculty', 'Mark activity work, give Shine Stars and play the Reveal Show.', 'var(--sky-soft)'],
+      ['mentor', '🧑‍💼', 'Mentor', 'Attendance, messages, students, habits and results.', 'var(--brand-soft)'],
+      ['admin', '🛠️', 'Admin', 'Academy overview, season and activity log.', 'var(--grape-soft)']].map(r => '<button class="role-card" data-act="pick-role" data-k="' + r[0] + '"><span class="ic" style="background:' + r[4] + '">' + r[1] + '</span><h3>' + r[2] + '</h3><p>' + r[3] + '</p></button>').join('') + '</div>';
+  } else if (L.role === 'parent') {
+    h += '<form class="login-box" data-form="login-parent" novalidate><div class="row between"><h2 style="font-size:22px">Parent sign in</h2><button type="button" class="link" data-act="pick-role" data-k="">Back</button></div>' +
+      '<div class="field"><label for="lg-id">Qaaf ID</label><input class="inp" id="lg-id" name="id" placeholder="QF26129" autocomplete="username" autocapitalize="characters" value="' + esc(L.id) + '"></div>' +
+      '<div class="field"><label for="lg-ppin">Parent PIN</label><input class="inp" id="lg-ppin" name="pin" type="password" inputmode="numeric" maxlength="8" autocomplete="current-password" placeholder="4 digits"></div>' +
+      (L.err ? '<p class="err">' + esc(L.err) + '</p>' : '') +
+      '<button class="btn pri block" type="submit"' + (L.busy ? ' disabled' : '') + '>' + (L.busy ? 'Signing in…' : 'Sign in') + '</button>' +
+      '<p class="small muted">The mentor has shared the parent PIN on WhatsApp. Brothers and sisters: sign in with any one child and switch inside the app.</p></form>';
+  } else {
+    const label = { faculty: 'Faculty', mentor: 'Mentor', admin: 'Admin' }[L.role];
+    h += '<form class="login-box" data-form="login-staff" novalidate><div class="row between"><h2 style="font-size:22px">' + label + ' sign in</h2><button type="button" class="link" data-act="pick-role" data-k="">Back</button></div>';
+    if (!L.names) h += '<div class="field"><label for="lg-pin">PIN</label><input class="inp" id="lg-pin" name="pin" type="password" inputmode="numeric" maxlength="8" autocomplete="current-password"></div>';
+    else h += '<div class="field"><span class="lbl">Who are you?</span><div class="namegrid">' + L.names.map(n => '<button type="button" data-act="pick-name" data-k="' + esc(n) + '" aria-pressed="' + (L.pick === n) + '">' + av({ id: n, name: n }, 28) + esc(n) + '</button>').join('') + '</div></div>';
+    h += (L.err ? '<p class="err">' + esc(L.err) + '</p>' : '') + '<button class="btn pri block" type="submit"' + (L.busy ? ' disabled' : '') + '>' + (L.busy ? 'Please wait…' : L.names ? 'Continue' : 'Sign in') + '</button><p class="small muted">Everything you save is recorded with your name.</p></form>';
+  }
+  return h + '</div>';
+}
+async function doLogin(body) {
+  const L = state.login; L.busy = true; L.err = ''; render();
+  try {
+    const r = await api('login', body);
+    if (r.names) { L.names = r.names; L.busy = false; if (r.names.length === 1) { L.pick = r.names[0]; } render(); return; }
+    state.token = r.token; state.role = r.role; state.user = r.user; store.set('token', r.token); store.set('role', r.role); store.set('user', r.user);
+    state.view = null; state.login = { role: null, err: '', names: null, pin: '', pick: null, id: '', busy: false };
+    await boot();
+  } catch (e) { L.busy = false; L.err = e.message; render(); }
+}
+
+/* ---------------- parent helpers ---------------- */
+const kidOf = () => state.M.students.find(s => s.id === state.kid) || state.M.students[0];
+const hlogOf = s => (state.D.hlog && state.D.hlog[s.id]) || {};
+const hsOf = s => SQ.habitInfo(state.M, hlogOf(s));
+const newHabits = d => SQ.activeOn(state.M, d).filter(no => { const h = SQ.habit(state.M, no); return h && h.isNew; });
+function myAwards(s) { return (state.D.awards || []).filter(a => a.id === s.id).map(a => Object.assign({ rn: a.rn }, a)); }
+
+function kidHome(s) {
+  const M = state.M, cur = SQ.curRound(M), hs = hsOf(s), st = SQ.starsOf(M, s, hs), li = SQ.levelOf(M, st), L = M.levels[li], N = M.levels[li + 1];
+  const sc = SQ.score(M, s, cur), band = sc.band, act = SQ.activeOn(M, M.today), ph = SQ.phaseFor(act.length), nw = newHabits(M.today);
+  const rk = (state.D.ranks[s.id] || {})[cur] || {}, isR1 = s.cls === 'Root 1';
+  const started = SQ.roundStarted(M, cur);
+  let rankMsg = '';
+  if (started && sc.max) rankMsg = rk.hidden ? '🤫 Mystery Mode! Your place is a secret until the reveal.' :
+    isR1 ? (rk.inTop ? 'You are in the <b>Star Group</b> this round! ⭐' : (rk.need ? rk.need + ' points to join the <b>Star Group</b>' : 'Keep going to join the <b>Star Group</b>!')) :
+      (rk.inTop ? 'You are <b>#' + rk.rank + '</b> in ' + esc(s.cls) + '! Keep shining.' : rk.need ? '<b>' + rk.need + ' points</b> to reach the Top ' + rk.top + ' in ' + esc(s.cls) : 'Keep going to reach the Top ' + (rk.top || '') + '!');
+  const nextB = SQ.BANDS[SQ.BANDS.indexOf(band) + 1]; const needB = nextB && sc.max ? Math.max(1, Math.ceil(M.bands[nextB] / 100 * sc.max - sc.total)) : 0;
+  const bubble = nw.length ? 'New habit: <b>' + nw.map(no => { const h = SQ.habit(M, no); return h.e + ' ' + esc(h.n); }).join(', ') + '</b>. Learn its dua with your family!' : 'Every routine you do earns a star. Let’s go!';
+  let x = '<div class="bubble-row"><span class="wiggle" style="display:inline-block">' + hudhud(66) + '</span><div class="bubble">Assalamu alaikum, ' + esc(firstName(s.name)) + '! ' + bubble + '</div></div>';
+  x += installTip();
+  x += '<section class="k-card stars-card"><div class="row between"><div><span class="small muted" style="font-weight:800">MY STARS</span><div class="big-num num">⭐ ' + st + '</div></div><div style="text-align:right"><span class="tag grape">Level ' + (li + 1) + '</span><div style="font-family:var(--font-display);font-weight:800;font-size:20px">' + L.n + '</div></div></div>' +
+    (N ? '<div class="bar sun"><span style="width:' + Math.min(100, (st - L.min) / (N.min - L.min) * 100) + '%"></span></div><p class="small" style="font-weight:800">' + (N.min - st) + ' stars to <b>' + N.n + '</b></p>' : '<p class="small" style="font-weight:800">Top level reached! 👑</p>') +
+    '<div class="statrow"><div class="stat"><b>🔥 ' + hs.cur + '</b><span>day streak</span></div><div class="stat"><b>🏅 ' + (hs.mastery.length + hs.weekly.length + myAwards(s).length) + '</b><span>badges & awards</span></div></div></section>';
+  const r = SQ.round(M, cur), open = SQ.revealOpen(M, cur);
+  x += '<section class="k-card round-card"><div class="row between"><h3>Round ' + cur + '</h3><span class="tag info">' + (!started ? 'Starts ' + fmtDay(r.start) : open ? 'Results are out!' : 'Reveal ' + esc(revealText(cur))) + '</span></div>';
+  if (!started) x += '<p style="font-weight:800">Round ' + cur + ' starts on ' + fmtDay(r.start) + '. Every live class, recorded class and activity will earn points!</p>';
+  else if (!sc.max) x += '<p style="font-weight:800">No classes marked yet this round. Points appear here after the first class.</p>';
+  else x += '<div class="row" style="gap:16px;flex-wrap:nowrap"><div class="ring" style="--p:' + Math.min(100, sc.pct).toFixed(0) + ';--c:var(--' + (band === 'none' ? 'sky' : band) + ')"><div><b class="num">' + sc.score + '</b><small>score</small></div></div>' +
+    '<div style="display:grid;gap:6px;min-width:0">' + bandTag(band) + '<span style="font-weight:800" class="num">' + r1(sc.core) + ' of ' + sc.max + ' points so far' + (sc.bonus ? ' + ' + sc.bonus + ' bonus' : '') + '</span>' +
+    (nextB ? '<span class="small muted" style="font-weight:800">' + needB + ' more points for ' + SQ.BANDN[nextB] + '</span>' : '<span class="small" style="font-weight:800;color:var(--brand-ink)">Top band reached! 💎</span>') + '</div></div>' +
+    (rankMsg ? '<div class="hint ' + (rk.inTop ? 'ok' : '') + '">' + rankMsg + '</div>' : '') +
+    (!open ? '<div class="hint grape">⏳ Results in <b>' + countdown(SQ.revealMs(M, cur)) + '</b>' + (SQ.mysteryOn(M, cur) ? ' · 🤫 Mystery Mode is on' : '') + '</div>' : '');
+  x += '</section>';
+  const w = SQ.curWeek(M), m = (M.marks || {})[s.id];
+  const lastA = m && w ? [w, w - 1].map(k => k >= 1 ? { w: k, a: m.A[k - 1] } : null).filter(Boolean).find(z => z.a && z.a[0]) : null;
+  x += '<section class="k-card"><h3>Today’s missions</h3>' +
+    mission(hs.today, 'Check in your habits', act.length + ' routines today', 'k-tab', 'checkin') +
+    mission(false, 'Watch this week’s recorded classes', '3 classes a week on the LMS · ' + M.P.R + ' points each') +
+    mission(!!lastA && lastA.a[0] !== 'miss', 'Send your activity work on WhatsApp', lastA ? ('Week ' + lastA.w + ': ' + (lastA.a[0] === 'miss' ? 'Not received' : lastA.a[0] === 'E' ? 'Excused' : 'Received' + (lastA.a[1] ? ' · ' + SQ.QN[lastA.a[1]] : ''))) : 'Your teacher gives it in the live class') + '</section>';
+  if (started && sc.max) x += '<section class="k-card"><h3>Where my points come from</h3><div class="pillars">' + [['🎥', 'Tarbiya live class', 'T', 'sky'], ['📖', 'Thartheel class', 'Q', 'grape'], ['📺', 'Recorded classes', 'R', 'coral'], ['✏️', 'Activity work', 'A', 'sun']].map(p => { const g = sc[p[2]], mx = sc[p[2] + 'm']; return '<div class="pillar"><span class="pi">' + p[0] + '</span><div style="display:grid;gap:4px;min-width:0"><span class="pn">' + p[1] + '</span><div class="bar ' + p[3] + '"><span style="width:' + (mx ? g / mx * 100 : 0) + '%"></span></div></div><span class="pv num">' + (mx ? r1(g) + '/' + mx : '<span class="tag">not yet</span>') + '</span></div>'; }).join('') + (sc.bonus ? '<p class="small" style="font-weight:800">+ ' + sc.bonus + ' bonus points (Shine Stars, appreciation, Canva, perfect attendance)</p>' : '') + '</div></section>';
+  x += '<section class="k-card"><div class="tree-wrap">' + treeSvg(ph, 120) + '<div style="display:grid;gap:6px;min-width:0"><h3>My Habit Tree</h3><p class="small muted" style="font-weight:700">' + SQ.PHASES[ph].e + ' ' + SQ.PHASES[ph].n + ' phase · ' + act.length + ' routines every day</p><div class="phases">' + SQ.PHASES.map((p, i) => '<span class="' + (i < ph ? 'on' : i === ph ? 'now' : '') + '">' + p.n + '</span>').join('') + '</div></div></div></section>';
+  const aw = myAwards(s);
+  if (aw.length) x += '<section class="k-card"><h3>My awards 🎉</h3><div class="awards-strip">' + aw.map((a, i) => '<button data-act="poster" data-i="' + i + '">' + poster(a) + '</button>').join('') + '</div></section>';
+  x += '<button class="btn block" data-act="k-tab" data-k="how">❓ How Star Quest works</button>';
+  return x;
+}
+function mission(done, t, sub, act, k) { return '<div class="mission' + (done ? ' done' : '') + '"><span class="tick">' + (done ? '✓' : '') + '</span><div class="txt">' + esc(t) + '<small>' + esc(sub || '') + '</small></div>' + (act && !done ? '<button class="btn sm sky" data-act="' + act + '" data-k="' + k + '">Go</button>' : '') + '</div>'; }
+let deferredInstall = null;
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredInstall = e; render(); });
+function installTip() {
+  const standalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || navigator.standalone;
+  if (standalone || store.get('hideInstall', false)) return '';
+  const ios = /iphone|ipad|ipod/i.test(navigator.userAgent || '');
+  return '<div class="hint sun row between" style="align-items:center"><span>📲 ' + (deferredInstall ? 'Add Star Quest to your home screen.' : ios ? 'Install: tap <b>Share</b>, then <b>Add to Home Screen</b>.' : 'Install: open the browser menu ⋮ and tap <b>Add to Home screen</b>.') + '</span><span class="row">' + (deferredInstall ? '<button class="btn sm sun" data-act="install">Install</button>' : '') + '<button class="link" data-act="hide-install">Hide</button></span></div>';
+}
+
+function kidCheckin(s) {
+  const M = state.M, d = state.ckDate, log = hlogOf(s), done = log[d] || [];
+  const act = SQ.activeOn(M, d), nw = newHabits(d);
+  const n = act.filter(i => done.includes(i)).length;
+  let x = '<div class="bubble-row">' + hudhud(58) + '<div class="bubble">' + (act.length && n === act.length ? 'All done! Masha Allah! 🎉' : 'Tap each routine you did <b>fully</b>, with the dua.') + '</div></div>';
+  if (state.offline) x += '<div class="hint warn">You are offline. Your ticks are saved on this phone and will be sent when you are back online.</div>';
+  x += '<div class="dates">' + [0, 1, 2].map(i => { const dd = SQ.addDays(M.today, -i); if (dd < SQ.LAUNCH) return ''; return '<button data-act="ck-date" data-k="' + dd + '" aria-pressed="' + (dd === d) + '">' + (i === 0 ? 'Today' : i === 1 ? 'Yesterday' : DOW[SQ.D(dd).getUTCDay()]) + '<small>' + fmt(dd) + '</small></button>'; }).join('') + '</div>';
+  if (!act.length) return x + '<section class="k-card"><p style="font-weight:800">No routines are switched on yet.</p></section>';
+  x += '<section class="k-card"><div class="progress-head"><b style="font-family:var(--font-display);font-size:22px" class="num">' + n + '/' + act.length + '</b><div class="bar"><span style="width:' + (n / act.length * 100) + '%"></span></div></div>' +
+    '<button class="btn sun block" data-act="ck-all"' + (n === act.length ? ' disabled' : '') + '>✓ All done ' + (d === M.today ? 'today' : 'on ' + fmt(d)) + '</button>' +
+    '<div class="routines">' + act.map(no => { const h = SQ.habit(M, no), on = done.includes(no); return '<button class="rt" data-act="ck-tog" data-k="' + no + '" aria-pressed="' + on + '">' + (nw.includes(no) ? '<span class="new">NEW</span>' : '') + '<span class="chk">' + (on ? '✓' : '') + '</span><span class="em">' + h.e + '</span><span class="rn">' + esc(h.n) + '</span></button>'; }).join('') + '</div>' +
+    '<p class="small muted" style="font-weight:700;text-align:center">Each routine = ' + M.stars.habit + ' ⭐ · All done = +' + M.stars.allDone + ' ⭐ bonus</p></section>';
+  x += '<section class="k-card"><h3>Learn the duas</h3><div class="row">' + act.map(no => { const h = SQ.habit(M, no); return '<button class="chip" data-act="dua" data-k="' + no + '">' + h.e + ' ' + esc(h.b) + '</button>'; }).join('') + '</div></section>';
+  return x;
+}
+function toggleHabit(s, no, all) {
+  const D = state.D, d = state.ckDate; D.hlog = D.hlog || {}; const log = D.hlog[s.id] = D.hlog[s.id] || {};
+  const act = SQ.activeOn(state.M, d); const before = (log[d] || []).slice(); const wasAll = act.every(n => before.includes(n));
+  let now = all ? act.slice() : (before.includes(no) ? before.filter(x => x !== no) : before.concat(no));
+  now = now.filter(n => act.includes(n)).sort((a, b) => a - b);
+  log[d] = now; store.set('data_parent', D); queueHabit(s.id, d, now);
+  const isAll = act.length && act.every(n => now.includes(n));
+  render();
+  if (isAll && !wasAll) { confetti(); toast('All done! +' + (act.length * state.M.stars.habit + state.M.stars.allDone) + ' ⭐ Masha Allah!'); }
+  else if (!all) { const h = SQ.habit(state.M, no); toast(now.includes(no) ? '+' + state.M.stars.habit + ' ⭐ ' + h.n : 'Removed'); }
+}
+function boardList(B, cls, opt) {
+  opt = opt || {}; const myst = B.mystery;
+  if (cls === 'Root 1' && !opt.academy) {
+    const rows = (B.cls[cls] || {}).rows || [];
+    return '<p class="small muted" style="font-weight:700">Root 1 has no rank numbers. The top children form this round’s Star Group' + (myst ? ' (hidden in Mystery Mode).' : '.') + '</p><div class="stargroup">' + (rows.map(r => r.n == null ? '<div><span class="av mystery" style="--s:56px">?</span>???</div>' : '<div class="' + (r.me ? 'me' : '') + '">' + av({ name: r.n }, 56) + esc(r.n) + '</div>').join('') || '<p class="muted">No scores yet.</p>') + '</div>';
+  }
+  const rows = opt.academy ? B.academy : ((B.cls[cls] || {}).rows || []);
+  if (!rows.length) return '<p class="muted" style="font-weight:700">No scores yet for this round.</p>';
+  let x = '';
+  const nm = r => r.n == null ? 'Mystery' : esc(r.n);
+  if (rows.length >= 3) x += '<div class="podium">' + [1, 0, 2].map(i => { const p = rows[i]; return '<div class="pd p' + (i + 1) + '">' + (p.n == null ? '<span class="av mystery" style="--s:54px">?</span><span class="nm">Mystery</span><span class="pts">reveal soon</span>' : av({ name: p.n }, 54) + '<span class="nm">' + nm(p) + '</span><span class="pts num">' + p.sc + ' score</span>') + '<div class="stand">' + (i + 1) + '</div></div>'; }).join('') + '</div>';
+  x += '<div class="lb">' + (rows.length >= 3 ? rows.slice(3) : rows).map(p => '<div class="lb-row' + (p.me ? ' me' : '') + '"><span class="rk">' + (p.r || '') + '</span>' + av({ name: p.n || '?' }, 36) + '<span class="nm">' + nm(p) + '<small>' + (opt.academy ? esc(p.c) + ' · ' : '') + (p.b ? SQ.BANDN[p.b] : '') + '</small></span><span class="val num">' + (p.sc == null ? '' : p.sc) + '</span></div>').join('') + '</div>';
+  return x;
+}
+function cupHtml(cup) {
+  return '<h3>🏫 Class Cup</h3><div class="hbars">' + cup.map((x, i) => '<div class="cup"><span>' + (i === 0 && x.v ? '🏆 ' : '') + esc(x.c) + '</span><div class="bar sky"><span style="width:' + x.v + '%"></span></div><span class="v">' + Math.round(x.v) + '%</span></div>').join('') + '</div><p class="small muted" style="font-weight:700">Average score of all children in each class.</p>';
+}
+function kidBoard(s) {
+  const D = state.D, rounds = Object.keys(D.boards || {}).map(Number).sort((a, b) => b - a);
+  if (!rounds.length) return '<section class="k-card"><h3>Leaderboard</h3><p style="font-weight:800">The leaderboard opens when Round 1 starts on ' + fmtDay(SQ.round(state.M, 1).start) + '.</p></section>';
+  const rn = rounds.includes(state.lbRound) ? state.lbRound : rounds[0], B = D.boards[rn], tab = state.lbTab;
+  let x = '<div class="row between"><div class="seg" role="group">' + [['class', 'My class'], ['academy', 'Academy'], ['cups', 'Class Cup']].map(t => '<button data-act="lb-tab" data-k="' + t[0] + '" aria-pressed="' + (tab === t[0]) + '">' + t[1] + '</button>').join('') + '</div>' +
+    (rounds.length > 1 ? '<div class="seg" role="group">' + rounds.slice(0, 3).map(r => '<button data-act="lb-round" data-k="' + r + '" aria-pressed="' + (rn === r) + '">Round ' + r + (r === SQ.curRound(state.M) && !SQ.roundEnded(state.M, r) ? ' · live' : '') + '</button>').join('') + '</div>' : '') + '</div>';
+  if (B.mystery) x += '<div class="hint grape">🤫 Mystery Mode: the Top 3 are hidden until the results open on ' + esc(revealText(rn)) + '.</div>';
+  if (tab === 'class') {
+    x += '<section class="k-card"><div class="row between"><h3>' + esc(s.cls) + ' · Round ' + rn + '</h3><span class="tag info">' + (B.open ? 'Final' : 'Live') + '</span></div>' + boardList(B, s.cls) + '</section>';
+    const sc = SQ.score(state.M, s, rn);
+    if (sc.max) x += '<section class="k-card"><div class="row"><span class="medal ' + sc.band + '" style="--m:46px">' + (sc.band === 'none' ? '–' : SQ.BANDN[sc.band][0]) + '</span><div class="grow"><b style="font-family:var(--font-display);font-size:18px">' + esc(firstName(s.name)) + ': ' + SQ.BANDN[sc.band] + ' · score ' + sc.score + '</b><p class="small muted" style="font-weight:800">Bands are for everyone. Reach ' + state.M.bands.gold + ' and you join the Gold Club!</p></div></div></section>';
+  } else if (tab === 'academy') x += '<section class="k-card"><h3>Academy Top ' + (state.M.topN.academy || 20) + ' · Round ' + rn + '</h3><p class="small muted" style="font-weight:700">All classes together, ranked by score, so every class has a fair chance.</p>' + boardList(B, 'all', { academy: true }) + '</section>';
+  else x += '<section class="k-card">' + cupHtml(B.cup) + '</section>';
+  return x;
+}
+function kidBadges(s) {
+  const M = state.M, hs = hsOf(s), li = SQ.levelOf(M, SQ.starsOf(M, s, hs)), aw = myAwards(s), act = SQ.activeOn(M, M.today);
+  let x = '<section class="k-card"><h3>My awards</h3>' + (aw.length ? '<div class="awards-strip">' + aw.map((a, i) => '<button data-act="poster" data-i="' + i + '">' + poster(a) + '</button>').join('') + '</div>' : '<p class="muted" style="font-weight:700">No award posters yet. Winners are revealed every second Saturday at 7 PM!</p>') + '</section>';
+  x += '<section class="k-card"><h3>Routine badges</h3><p class="small muted" style="font-weight:700">Do a routine 7 days in a row to earn its badge.</p><div class="badges">' + M.habits.filter(h => h.on || hs.mastery.some(z => z.no === h.no)).map(h => { const m = hs.mastery.find(z => z.no === h.no); const later = !act.includes(h.no); return '<button class="bdg' + (m ? '' : ' locked') + '" data-act="dua" data-k="' + h.no + '"><span class="disc">' + h.e + '</span><b>' + esc(h.b) + '</b><small>' + (m ? 'Earned ' + fmt(m.date) : later ? (h.start ? 'Starts ' + fmt(h.start) : 'Coming later') : 'Keep going') + '</small></button>'; }).join('') + '</div></section>';
+  x += '<section class="k-card"><h3>Weekly awards</h3><div class="badges">' + SQ.WEEKLY.map(w => { const c = hs.weekly.filter(z => z.k === w.k).length; return '<div class="bdg' + (c ? '' : ' locked') + '"><span class="disc">' + w.e + '</span><b>' + w.n + '</b><small>' + (c ? '× ' + c : w.k === 'streak' ? 'All routines, 7 days' : 'Two perfect weeks in a row') + '</small></div>'; }).join('') + '</div></section>';
+  x += '<section class="k-card"><h3>Star levels</h3><div class="levels">' + M.levels.map((l, i) => '<div class="lvl-row ' + (i < li ? 'done' : i === li ? 'cur' : 'next') + '"><span>' + (i < li ? '✅' : i === li ? '⭐' : '🔒') + '</span><span class="grow">Level ' + (i + 1) + ' · ' + l.n + '</span><span class="num">' + l.min + '</span></div>').join('') + '</div></section>';
+  return x;
+}
+function kidMsg(s) {
+  const T = (state.D.messages || []).filter(t => t.sid === s.id);
+  let x = '<section class="k-card"><h3>Message the mentor</h3><form data-form="pmsg" novalidate style="display:grid;gap:10px"><div class="row" role="group" aria-label="Category">' + ['Question', 'Leave notice', 'Concern', 'Technical issue', 'Feedback / Thanks'].map((c, i) => '<label class="chip"><input type="radio" name="cat" value="' + c + '" ' + (i === 0 ? 'checked' : '') + ' style="margin:0"> ' + c + '</label>').join('') + '</div>' +
+    '<div class="field"><label for="pm-date">Date of absence (for a leave notice)</label><input class="inp" type="date" id="pm-date" name="leave" min="' + state.M.today + '" value="' + state.M.today + '"></div>' +
+    '<div class="field"><label for="pm-text">Message</label><textarea class="inp" id="pm-text" name="text" rows="3" maxlength="1000" placeholder="Write to the mentor…"></textarea></div><p class="err" id="pm-err" hidden></p><button class="btn pri" type="submit"' + (state.busy ? ' disabled' : '') + '>' + (state.busy ? 'Sending…' : 'Send to mentor') + '</button></form><p class="small muted" style="font-weight:700">All messages go to the mentor. If a teacher needs to help, the mentor passes it on and the teacher replies to you on WhatsApp.</p></section>';
+  x += '<section class="k-card"><h3>My messages</h3>' + (T.length ? T.slice().reverse().map(t => {
+    const st = MSG_ST[t.status] || MSG_ST.new;
+    return '<div style="display:grid;gap:6px;border-top:2px dashed var(--line);padding-top:10px"><div class="row between"><b>' + esc(t.cat) + '</b><span class="tag ' + st[1] + '">' + st[0] + '</span></div><div class="thread"><div class="msg p">' + esc(t.text) + '<small>You · ' + fmtDay(t.date) + (t.leave ? ' · leave on ' + fmtDay(t.leave) : '') + '</small></div>' +
+      (t.reply ? t.reply.split('\n').map(r => '<div class="msg m">' + esc(r) + '<small>Mentor</small></div>').join('') : '') + '</div>' +
+      (t.status === 'assigned' ? '<div class="hint">Passed to ' + esc(t.assignee) + '. They will reply to you on WhatsApp.</div>' : t.status === 'done' ? '<div class="hint ok">' + esc(t.doneBy) + ' replied to you on WhatsApp.</div>' : '') + '</div>';
+  }).join('') : '<p class="muted" style="font-weight:700">No messages yet.</p>') + '</section>';
+  return x;
+}
+function kidHow() {
+  const P = state.M.P, B = state.M.bands;
+  return '<section class="k-card"><div class="row between"><h3>How Star Quest works</h3><button class="btn sm" data-act="k-tab" data-k="home">Back</button></div>' +
+    '<p style="font-weight:700">Every two weeks is a <b>Round</b>. Earn points in 4 ways:</p><div class="pillars">' +
+    [['🎥', 'Tarbiya live class', 'Join and stay for the whole class', 'up to ' + P.T], ['📖', 'Thartheel class', 'Stay for the whole class and clear your lesson', 'up to ' + (P.Q + P.L)], ['📺', 'Recorded classes', 'Watch all 3 each week, fully', P.R + ' each'], ['✏️', 'Activity work', 'Send it on time, do it beautifully', 'up to ' + (P.AON + P.QO)]].map(p => '<div class="pillar"><span class="pi">' + p[0] + '</span><div><span class="pn">' + p[1] + '</span><p class="small muted" style="font-weight:700">' + p[2] + '</p></div><span class="tag sun">' + p[3] + '</span></div>').join('') + '</div>' +
+    '<p style="font-weight:700">Staying for only part of a class gives part of the points: 75%, 50% or 25%.</p>' +
+    '<p style="font-weight:700">Bonus: ⭐ Shine Star from your teacher, 💚 Mentor Appreciation, 🖼 Activity of the Week, 📸 Canva board photo, 🎯 Perfect attendance.</p>' +
+    '<h3>Your score</h3><p style="font-weight:700">Score 100 means you got every point possible this round. Bonus points can take you above 100!</p>' +
+    '<h3>Bands, for everyone</h3><div class="row"><span class="band b-bronze"><i></i>Bronze ' + B.bronze + '</span><span class="band b-silver"><i></i>Silver ' + B.silver + '</span><span class="band b-gold"><i></i>Gold ' + B.gold + '</span><span class="band b-diamond"><i></i>Diamond ' + B.diamond + '</span></div>' +
+    '<h3>Stars and levels</h3><p style="font-weight:700">Everything you do gives Stars, including your daily habits and badges. Stars never go down. Collect them to grow from Starter to Qaaf Legend!</p>' +
+    '<h3>Reveal day</h3><p style="font-weight:700">Winners are revealed every second Saturday at 7 PM: ' + state.M.rounds.map(r => fmt(r.reveal)).join(', ') + ' (Grand Finale). Your teacher plays the Reveal Show in the next live class!</p></section>';
+}
+function vParent() {
+  const s = kidOf(); if (!s) return '<div class="login"><p>No child is linked to this login.</p><button class="btn" data-act="logout">Sign out</button></div>';
+  const tab = state.view || 'home', sibs = state.M.students.filter(x => x.id !== s.id);
+  const seen = store.get('seen', {}); const newMsg = (state.D.messages || []).some(t => t.sid === s.id && (t.reply || t.status === 'done' || t.status === 'assigned') && seen[t.id] !== t.status + (t.reply || '').length);
+  const batchTxt = s.type === 'Individual' ? 'Individual' : s.batch;
+  let x = '<div class="kid"><header class="k-head">' + av(s, 46) + '<div class="who"><b>' + esc(s.name) + '</b><span>' + esc(s.cls) + ' · ' + esc(batchTxt) + '</span></div>' + (sibs.length ? '<button class="icon-btn" data-act="switch-kid" data-id="' + sibs[0].id + '" aria-label="Switch to ' + esc(firstName(sibs[0].name)) + '">🔁</button>' : '') + '<button class="icon-btn" data-act="logout" aria-label="Sign out">↩</button></header>';
+  x += '<main class="k-main">' + (state.offline ? '<div class="hint warn">Offline · showing saved data</div>' : '') + (sibs.length && tab === 'home' ? '<div class="hint sun">👨‍👩‍👧 Also in your family: ' + sibs.map(b => '<button class="link" data-act="switch-kid" data-id="' + b.id + '">' + esc(firstName(b.name)) + '</button>').join(', ') + '</div>' : '') +
+    (tab === 'home' ? kidHome(s) : tab === 'checkin' ? kidCheckin(s) : tab === 'board' ? kidBoard(s) : tab === 'badges' ? kidBadges(s) : tab === 'msg' ? kidMsg(s) : kidHow()) + '</main>';
+  x += '<nav class="nav-b" aria-label="Main">' + [['home', '🏠', 'Home'], ['checkin', '✅', 'Check-in'], ['board', '🏆', 'Leaders'], ['badges', '🏅', 'Badges'], ['msg', '💬', 'Messages']].map(n => '<button data-act="k-tab" data-k="' + n[0] + '" ' + (tab === n[0] || (tab === 'how' && n[0] === 'home') ? 'aria-current="page"' : '') + ' class="' + (n[0] === 'msg' && newMsg ? 'dot' : '') + '"><i>' + n[1] + '</i>' + n[2] + '</button>').join('') + '</nav></div>';
+  return x;
+}
+/* ===================================================================
+   part 3: staff shell, faculty and admin
+   =================================================================== */
+const SID = () => SQ.sid(state.M);
+const ACTIVE = () => SQ.active(state.M);
+const curR = () => SQ.curRound(state.M);
+const curW = () => Math.max(1, SQ.curWeek(state.M));
+const glabel = (kind, g) => SQ.groupLabel(state.M, kind, g);
+function weekLabel(w) { const k = SQ.week(state.M, w); return k ? 'W' + w + ' · ' + fmt(k.start) + '–' + fmt(k.end) : 'W' + w; }
+function staffShell(title, sub, tabs, body) {
+  const M = state.M, cr = curR(), r = SQ.round(M, cr), day = SQ.diffDays(r.start, M.today) + 1;
+  const status = M.today < SQ.round(M, 1).start ? 'Round 1 starts ' + fmtDay(SQ.round(M, 1).start) : M.today > SQ.round(M, M.rounds.length).end ? 'Season finished' : 'Round ' + cr + ', day ' + Math.min(14, day) + ' of 14';
+  return '<div class="staff"><header class="st-head"><div class="who">' + av({ id: state.user, name: state.user }, 44) + '<div><h1>' + esc(title) + '</h1><span>' + esc(sub) + '</span></div></div><div class="row"><span class="tag info">' + fmtDay(M.today) + ' · ' + status + '</span>' + (state.offline ? '<span class="tag warn">Offline</span>' : '') + '<button class="btn sm" data-act="refresh"' + (state.loading ? ' disabled' : '') + '>' + (state.loading ? 'Loading…' : '↻ Refresh') + '</button><button class="btn sm" data-act="logout">Sign out</button></div></header>' +
+    '<nav class="tabs" role="tablist">' + tabs.map(t => '<button role="tab" data-act="st-tab" data-k="' + t[0] + '" aria-selected="' + (state.view === t[0]) + '">' + t[1] + (t[2] ? '<span class="cnt">' + t[2] + '</span>' : '') + '</button>').join('') + '</nav>' + body + '</div>';
+}
+function assignedTo(name) {
+  const T = (state.D.messages || []).filter(t => t.assignee === name && (t.status === 'assigned' || t.status === 'done')).sort((a, b) => a.status === b.status ? (a.date < b.date ? 1 : -1) : a.status === 'assigned' ? -1 : 1);
+  let b = '<section class="panel"><div class="panel-head"><h2>Messages assigned to me</h2><p>Reply to the parent on WhatsApp, then mark it here so the mentor and the parent see it is answered.</p></div>';
+  if (!T.length) return b + '<p class="muted" style="font-weight:700">Nothing assigned to you right now.</p></section>';
+  b += '<div class="alist">' + T.map(t => {
+    const s = SID()[t.sid] || { id: t.sid, name: t.sid };
+    return '<div class="aitem" style="align-items:start">' + av(s, 36) + '<div style="display:grid;gap:4px"><div><b>' + esc(s.name) + '</b> <span class="small muted">' + esc(s.cls || '') + ' · ' + esc(s.type === 'Individual' ? 'Individual' : s.batch || '') + '</span> <span class="tag">' + esc(t.cat) + '</span></div><div class="msg p" style="justify-self:start;max-width:100%">' + esc(t.text) + '<small>Parent · ' + fmtDay(t.date) + '</small></div>' +
+      (t.status === 'done' ? '<span class="tag ok">Replied on WhatsApp' + (t.tnote ? ' · ' + esc(t.tnote) : '') + '</span>' : '<form data-form="done" data-id="' + esc(t.id) + '" class="row" novalidate><input class="inp grow" name="note" placeholder="Short note for the mentor (optional)" aria-label="Note for the mentor"><button class="btn sm pri" type="submit"' + (state.busy ? ' disabled' : '') + '>✓ Replied on WhatsApp</button></form>') +
+      '</div><span class="tiny muted">' + fmt(t.date) + '</span></div>';
+  }).join('') + '</div></section>';
+  return b;
+}
+function lbClassPanel(classes, full) {
+  const M = state.M, rn = state.lbRound && SQ.roundStarted(M, state.lbRound) ? state.lbRound : curR();
+  const c = classes.includes(state.lbClass) ? state.lbClass : classes[0];
+  const L = SQ.rankList(M, rn, c), N = SQ.topN(M, c);
+  const rounds = M.rounds.filter(r => SQ.roundStarted(M, r.n)).map(r => r.n);
+  let b = '<section class="panel"><div class="panel-head"><div class="seg" role="group">' + classes.map(x => '<button data-act="lb-class" data-k="' + x + '" aria-pressed="' + (x === c) + '">' + x + '</button>').join('') + '</div>' + (rounds.length > 1 ? '<div class="seg" role="group">' + rounds.map(r => '<button data-act="lb-round" data-k="' + r + '" aria-pressed="' + (r === rn) + '">R' + r + '</button>').join('') + '</div>' : '') + '<p>Round ' + rn + (SQ.roundEnded(M, rn) ? ' · final' : ' · live') + ' · staff see everyone. Parents see the Top ' + N + (c === 'Root 1' ? ' as a Star Group' : '') + '.</p></div>';
+  if (!L.length) return b + '<p class="muted" style="font-weight:700">No marked classes yet this round.</p></section>';
+  b += '<div class="tbl-wrap"><table class="tbl"><thead><tr><th class="n">#</th><th>Child</th><th>Batch</th><th class="n">Score</th><th>Band</th><th class="n">Points</th></tr></thead><tbody>' + L.map(x => '<tr class="click' + (x.rank <= N ? ' top' : '') + '" data-act="open-st" data-id="' + x.s.id + '"><td class="n">' + (c === 'Root 1' ? (x.rank <= N ? '⭐' : '') : x.rank) + '</td><td>' + whoCell(x.s, full ? x.s.id : '') + '</td><td>' + esc(x.s.type === 'Individual' ? 'Individual' : x.s.batch) + '</td><td class="n"><b>' + Math.round(x.sc.pct) + '</b></td><td>' + bandTag(x.sc.band) + '</td><td class="n">' + r1(x.sc.total) + '/' + x.sc.max + '</td></tr>').join('') + '</tbody></table></div></section>';
+  return b;
+}
+
+/* ---------------- FACULTY ---------------- */
+function facGroups(name) {
+  const M = state.M;
+  return M.batches.filter(b => b.faculty === name && b.name !== 'Individual').map(b => b.name).concat(ACTIVE().filter(s => s.type === 'Individual' && s.teacher === name).map(s => 'IND:' + s.id));
+}
+const groupCls = g => String(g).indexOf('IND:') === 0 ? (SID()[g.slice(4)] || {}).cls : (SQ.batchInfo(state.M, g) || {}).cls;
+function toMarkFor(groups) { const cw = SQ.curWeek(state.M); let n = 0; for (let w = Math.max(1, cw - 1); w <= cw; w++) groups.forEach(g => n += SQ.activityToMark(state.M, g, w)); return n; }
+function vFaculty() {
+  const M = state.M, me = state.user, keys = facGroups(me), myMsgs = (state.D.messages || []).filter(t => t.assignee === me && t.status === 'assigned').length;
+  const thg = M.thGroups.filter(g => g.teacher === me);
+  const tabs = [['home', 'My classes']];
+  if (keys.length) tabs.push(['activity', 'Activity work', toMarkFor(keys) || ''], ['shine', 'Shine Stars'], ['reveal', 'Reveal Show']);
+  tabs.push(['messages', 'Messages', myMsgs || '']);
+  tabs.push(['board', 'Leaderboard']);
+  if (!tabs.some(t => t[0] === state.view)) state.view = 'home';
+  let b = '';
+  const v = state.view;
+  if (v === 'home') {
+    const batchKeys = keys.filter(k => k.indexOf('IND:') !== 0), ind = keys.filter(k => k.indexOf('IND:') === 0);
+    const cw = SQ.curWeek(M), wk = cw ? SQ.week(M, cw) : null;
+    const shineN = (M.bonus || []).filter(x => x.type === 'shine' && x.by === me && wk && x.date >= wk.start && x.date <= wk.end).length;
+    b += '<div class="kpis">' + kpi('My batches', batchKeys.length, ind.length + ' individual students') + kpi('Activity to mark', toMarkFor(keys), 'this week and last week', toMarkFor(keys) ? 'warn' : 'ok', keys.length ? 'st-tab' : '', 'activity') + kpi('Messages for me', myMsgs, 'reply on WhatsApp', myMsgs ? 'warn' : 'ok', 'st-tab', 'messages') + kpi('Shine Stars', shineN, 'given this week') + '</div>';
+    if (batchKeys.length) b += '<div class="g3">' + batchKeys.map(k => { const kids = SQ.groupKids(M, 'T', k), bi = SQ.batchInfo(M, k); const sc = kids.map(s => SQ.score(M, s, curR())).filter(x => x.max); const a = avg(sc.map(x => Math.min(100, x.pct))); return '<section class="panel"><div class="panel-head"><h2>' + esc(k) + '</h2><span class="tag">' + kids.length + ' children</span></div><p class="small muted">' + esc(bi.day || '') + ' · ' + esc(bi.time || '') + '</p><div class="hbar"><span>Round ' + curR() + ' avg</span><div class="bar sky"><span style="width:' + a + '%"></span></div><span class="v">' + (sc.length ? Math.round(a) : '–') + '</span></div><div class="row"><button class="btn sm" data-act="fac-batch" data-k="' + esc(k) + '">Mark activity</button><button class="btn sm" data-act="fac-shine" data-k="' + esc(k) + '">Shine Stars</button></div></section>'; }).join('') + '</div>';
+    if (ind.length) b += '<section class="panel"><div class="panel-head"><h2>My individual students</h2><p>1-to-1 classes</p></div><div class="row">' + ind.map(k => { const s = SID()[k.slice(4)]; return '<button class="chip" data-act="fac-batch" data-k="' + esc(k) + '">' + esc(s.name) + ' · ' + esc(s.cls) + '</button>'; }).join('') + '</div></section>';
+    if (thg.length) b += '<section class="panel"><div class="panel-head"><h2>My Thartheel classes</h2><p>The mentor marks Thartheel attendance and lessons.</p></div><div class="alist">' + thg.map(g => '<div class="aitem"><span class="tag grape">Thartheel</span><div><b>' + esc(g.name) + '</b> <span class="small muted">' + esc(g.day) + ' · ' + esc(g.time) + '</span></div><span class="tag">' + SQ.groupKids(M, 'Q', g.name).length + ' children</span></div>').join('') + '</div></section>';
+    if (!keys.length && !thg.length) b += '<section class="panel"><h2>Welcome, ' + esc(firstName(me)) + '</h2><p class="muted" style="font-weight:700">No classes are linked to your name yet. When a parent’s question needs you, the mentor assigns it and it appears under Messages.</p></section>';
+    if (keys.length) b += '<section class="panel"><div class="panel-head"><h2>Taking another class?</h2><p>Substitute: choose the batch. Your marks are saved with your name.</p></div><div class="row">' + M.batches.filter(x => x.name !== 'Individual' && !keys.includes(x.name)).map(x => '<button class="chip" data-act="fac-batch" data-k="' + esc(x.name) + '" data-sub="1">' + esc(x.name) + '</button>').join('') + '</div></section>';
+  }
+  if (v === 'activity') b += facActivity(keys);
+  if (v === 'shine') b += facShine(keys);
+  if (v === 'reveal') b += revealPanel([...new Set(keys.map(groupCls))].filter(Boolean));
+  if (v === 'messages') b += assignedTo(me);
+  if (v === 'board') { const cls = [...new Set(keys.map(groupCls).concat(thg.map(g => null)).filter(Boolean))]; b += lbClassPanel(cls.length ? cls : SQ.CLASSES.slice(), true); }
+  const role = keys.length ? keys.filter(k => k.indexOf('IND:') !== 0).join(', ') || 'Individual classes' : thg.length ? 'Thartheel' : 'Faculty';
+  return staffShell(me, 'Faculty · ' + role, tabs, b);
+}
+function weekChips(act, w, count) {
+  const cw = SQ.curWeek(state.M); if (!cw) return '<p class="muted">Round 1 starts on ' + fmtDay(SQ.round(state.M, 1).start) + '.</p>';
+  const ws = []; for (let k = cw; k >= Math.max(1, cw - 3); k--) ws.push(k);
+  return '<div class="row">' + ws.map(k => { const n = count ? count(k) : 0; return '<button class="chip" data-act="' + act + '" data-k="' + k + '" aria-pressed="' + (k === w) + '">' + weekLabel(k) + (count ? (n ? ' <span class="tag warn">' + n + '</span>' : ' <span class="tag ok">✓</span>') : '') + '</button>'; }).join('') + '</div>';
+}
+function facActivity(keys) {
+  const M = state.M, F = state.fac;
+  const all = [...new Set(keys.concat(F.sub && F.g ? [F.g] : []))];
+  const g = F.g && all.includes(F.g) ? F.g : all[0];
+  const w = F.w || curW();
+  let b = '<section class="panel"><div class="panel-head"><h2>Activity work</h2><p>Look at the work sent on WhatsApp, then mark it here.</p></div><div class="row"><select class="inp" data-chg="fa-g" aria-label="Batch" style="width:auto">' + all.map(x => '<option value="' + esc(x) + '"' + (x === g ? ' selected' : '') + '>' + esc(glabel('T', x)) + '</option>').join('') + '</select>' + (!keys.includes(g) ? '<span class="tag warn">Substitute</span>' : '') + '</div>';
+  b += weekChips('fa-w', w, k => SQ.activityToMark(M, g, k));
+  const kids = SQ.groupKids(M, 'T', g).slice().sort((a, b2) => a.name < b2.name ? -1 : 1);
+  if (!kids.length) return b + '<p class="muted">No children in this group.</p></section>';
+  const cd = SQ.classDate(M, 'T', g, w);
+  b += '<div class="row between"><p class="small muted" style="font-weight:700">' + (cd ? 'Class ' + fmtDay(cd) + ' · ' : '') + 'On time ' + M.P.AON + ' · Late ' + M.P.ALATE + ' · Good +' + M.P.QG + ' · Excellent +' + M.P.QE + ' · Outstanding +' + M.P.QO + '</p><div class="row"><button class="btn sm" data-act="fa-all">Mark the rest on time · Good</button><button class="btn sm pri" data-act="fa-save"' + (state.busy ? ' disabled' : '') + '>' + (state.busy ? 'Saving…' : 'Save marks') + '</button></div></div><div>';
+  b += kids.map(s => {
+    const m = M.marks[s.id], saved = m && m.A[w - 1] && m.A[w - 1][0] ? { s: m.A[w - 1][0], q: m.A[w - 1][1] } : null, dk = s.id + '|' + w;
+    const cur = F.draft[dk] || saved, st = cur ? cur.s : null, q = cur ? cur.q : 0, t = m && m.T[w - 1];
+    const note = (t === 0 ? 'absent in class · ' : t === 'E' ? 'excused · ' : '') + (F.draft[dk] ? 'not saved yet' : saved ? 'saved' : 'not marked');
+    return '<div class="mark-row">' + whoCell(s, note) + '<span class="tri">' + [['on', 'On time'], ['late', 'Late'], ['miss', 'Missing'], ['E', 'Excused']].map(o => '<button class="' + (o[0] === 'E' ? 'q' : o[0]) + '" data-act="fa-st" data-id="' + s.id + '" data-k="' + o[0] + '" aria-pressed="' + (st === o[0]) + '">' + o[1] + '</button>').join('') + '</span><span class="tri">' + [1, 2, 3].map(n => '<button class="q" data-act="fa-q" data-id="' + s.id + '" data-k="' + n + '" aria-pressed="' + (q === n && (st === 'on' || st === 'late')) + '"' + (st === 'on' || st === 'late' ? '' : ' disabled') + '>' + SQ.QN[n] + '</button>').join('') + '</span></div>';
+  }).join('');
+  return b + '</div></section>';
+}
+function facShine(keys) {
+  const M = state.M, F = state.fac, g = F.sg && keys.includes(F.sg) ? F.sg : keys[0], w = F.sw || curW(), wk = SQ.week(M, w);
+  let b = '<section class="panel"><div class="panel-head"><h2>⭐ Shine Stars</h2><p>Up to 3 children per class each week. +' + M.P.SH + ' points each.</p></div><div class="row"><select class="inp" data-chg="sh-g" aria-label="Batch" style="width:auto">' + keys.map(x => '<option value="' + esc(x) + '"' + (x === g ? ' selected' : '') + '>' + esc(glabel('T', x)) + '</option>').join('') + '</select></div>';
+  b += weekChips('sh-w', w);
+  if (!wk) return b + '</section>';
+  const kids = SQ.groupKids(M, 'T', g).slice().sort((a, c) => a.name < c.name ? -1 : 1);
+  const marked = kids.some(s => typeof M.marks[s.id].T[w - 1] === 'number');
+  const pres = marked ? kids.filter(s => M.marks[s.id].T[w - 1] > 0) : kids;
+  const given = kids.filter(s => (M.bonus || []).some(z => z.id === s.id && z.type === 'shine' && z.date >= wk.start && z.date <= wk.end));
+  const left = Math.max(0, 3 - given.length);
+  b += '<p class="small muted" style="font-weight:700">' + (marked ? pres.length + ' children were marked present by the mentor.' : 'Attendance is not marked yet, so everyone is shown.') + ' Given this week: ' + (given.map(s => esc(firstName(s.name))).join(', ') || 'none') + '</p>';
+  if (!left) return b + '<div class="hint ok">All 3 Shine Stars for this class are given this week. 🌟</div></section>';
+  b += '<div class="namegrid">' + pres.filter(s => !given.includes(s)).map(s => '<button data-act="sh-pick" data-id="' + s.id + '" aria-pressed="' + F.pick.includes(s.id) + '">' + av(s, 28) + esc(shortName(s.name)) + '</button>').join('') + '</div>';
+  const R = ['Great answer', 'Helped a friend', 'Beautiful recitation', 'Best effort', 'Good manners'];
+  if (F.pick.length) b += '<div style="display:grid;gap:8px">' + F.pick.map(id => '<div class="row"><b style="min-width:120px">' + esc(SID()[id].name) + '</b>' + R.map(r => '<button class="chip" data-act="sh-reason" data-id="' + id + '" data-k="' + r + '" aria-pressed="' + (F.reason[id] === r) + '">' + r + '</button>').join('') + '</div>').join('') + '</div>';
+  b += '<div><button class="btn pri" data-act="sh-save"' + (F.pick.length && !state.busy ? '' : ' disabled') + '>Give ' + F.pick.length + ' Shine Star' + (F.pick.length === 1 ? '' : 's') + '</button> <span class="small muted">' + left + ' left this week</span></div></section>';
+  return b;
+}
+
+/* ---------------- ADMIN ---------------- */
+function vAdmin() {
+  const M = state.M, D = state.D, my = (D.messages || []).filter(t => t.assignee === 'Admin' && t.status === 'assigned').length;
+  const tabs = [['overview', 'Overview'], ['board', 'Leaderboard'], ['season', 'Season'], ['messages', 'Messages', my || ''], ['staff', 'Staff & log']];
+  if (!tabs.some(t => t[0] === state.view)) state.view = 'overview';
+  let b = ''; const v = state.view, cr = curR();
+  if (v === 'overview') {
+    const A = ACTIVE(), sc = A.map(s => SQ.score(M, s, cr)), withMax = sc.filter(x => x.max);
+    const liveRate = sum(sc.map(x => x.live)) / Math.max(1, sum(sc.map(x => x.liveT)));
+    const actDone = sum(sc.map(x => x.Am ? 1 : 0)) ? avg(sc.filter(x => x.Am).map(x => x.A / x.Am)) : 0;
+    const chk = avg(A.map(s => ((D.hs || {})[s.id] || { checkins7: 0 }).checkins7 / 7));
+    const um = SQ.unmarkedList(M).length;
+    b += '<div class="kpis">' + kpi('Active children', A.length, M.students.length - A.length + ' left') + kpi('Round ' + cr + ' average', withMax.length ? Math.round(avg(withMax.map(x => Math.min(100, x.pct)))) : '–', 'score so far') + kpi('Live attendance', Math.round(liveRate * 100) + '%', 'Tarbiya + Thartheel, this round') + kpi('Activity points', Math.round(actDone * 100) + '%', 'of possible, this round') + kpi('Habit check-in', Math.round(chk * 100) + '%', 'families, last 7 days', chk < .5 ? 'warn' : '') + kpi('Classes not marked', um, 'by the mentor', um ? 'warn' : 'ok') + '</div>';
+    b += '<div class="g2"><section class="panel"><div class="panel-head"><h2>Bands by class · Round ' + cr + '</h2><div class="legend">' + ['diamond', 'gold', 'silver', 'bronze', 'none'].map(k => '<span><i style="background:var(--' + (k === 'none' ? 'line' : k) + ')"></i>' + SQ.BANDN[k] + '</span>').join('') + '</div></div><div class="hbars">' + SQ.CLASSES.map(c => { const L = SQ.rankList(M, cr, c), t = L.length || 1; return '<div class="hbar" style="grid-template-columns:70px 1fr 40px"><span>' + c + '</span><div class="stack">' + ['diamond', 'gold', 'silver', 'bronze', 'none'].map(k => { const n = L.filter(x => x.sc.band === k).length; return n ? '<span class="' + k + '" style="width:' + n / t * 100 + '%" title="' + SQ.BANDN[k] + ': ' + n + '"></span>' : ''; }).join('') + '</div><span class="v">' + L.length + '</span></div>'; }).join('') + '</div></section>';
+    b += '<section class="panel">' + cupHtml(SQ.classCup(M, cr)) + '</section></div>';
+    const reg = r => { const L = A.filter(s => s.region === r); const p = L.map(s => SQ.score(M, s, cr)).filter(x => x.max); return [L.length, p.length ? avg(p.map(x => Math.min(100, x.pct))) : 0, avg(L.map(s => ((D.hs || {})[s.id] || { checkins7: 0 }).checkins7 / 7)) * 100]; };
+    const ind = reg('India'), gcc = reg('GCC');
+    b += '<div class="g2"><section class="panel"><div class="panel-head"><h2>India vs GCC families</h2><p>Watch this gap.</p></div><div class="tbl-wrap"><table class="tbl"><thead><tr><th></th><th class="n">Round ' + cr + '</th><th class="n">Habit check-in</th></tr></thead><tbody><tr><td><b>India</b> · ' + ind[0] + '</td><td class="n">' + Math.round(ind[1]) + '</td><td class="n">' + Math.round(ind[2]) + '%</td></tr><tr><td><b>GCC</b> · ' + gcc[0] + '</td><td class="n">' + Math.round(gcc[1]) + '</td><td class="n">' + Math.round(gcc[2]) + '%</td></tr></tbody></table></div></section>';
+    b += '<section class="panel"><div class="panel-head"><h2>Academy Top 5 · Round ' + cr + '</h2></div><div class="alist">' + (SQ.rankList(M, cr, 'all').slice(0, 5).map(x => '<div class="aitem"><span class="tag sun">#' + x.rank + '</span><div>' + whoCell(x.s, x.s.cls) + '</div><b class="num">' + Math.round(x.sc.pct) + '</b></div>').join('') || '<p class="muted">No scores yet.</p>') + '</div></section></div>';
+  }
+  if (v === 'board') b += lbClassPanel(SQ.CLASSES.slice(), true);
+  if (v === 'season') b += timelinePanel();
+  if (v === 'messages') b += assignedTo('Admin');
+  if (v === 'staff') {
+    b += '<div class="g2"><section class="panel"><h2>Staff</h2><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Name</th><th>Role</th><th>Batches</th><th class="n">Individuals</th></tr></thead><tbody>' + M.staff.map(f => '<tr><td>' + whoCell({ id: f.name, name: f.name }, f.active ? '' : 'inactive') + '</td><td>' + esc(f.role) + '</td><td>' + (M.batches.filter(x => x.faculty === f.name).map(x => esc(x.name)).concat(M.thGroups.filter(x => x.teacher === f.name).map(x => '<span class="small muted">' + esc(x.name) + '</span>')).join('<br>') || '—') + '</td><td class="n">' + ACTIVE().filter(s => s.type === 'Individual' && s.teacher === f.name).length + '</td></tr>').join('') + '</tbody></table></div><p class="small muted">Change staff, batches and timings in the Sheet (Staff, Batches and Thartheel Groups tabs).</p></section>';
+    b += '<section class="panel"><h2>Activity log</h2><div class="alist">' + ((D.log || []).map(l => '<div class="aitem"><span class="tiny muted">' + esc(l.t) + '</span><div><b>' + esc(l.who) + '</b> · ' + esc(l.what) + (l.info ? ' <span class="small muted">' + esc(l.info) + '</span>' : '') + '</div><span></span></div>').join('') || '<p class="muted">Nothing yet.</p>') + '</div></section></div>';
+  }
+  return staffShell('Admin', 'Qaaf Academy · ' + (M.season || 'Star Quest'), tabs, b);
+}
+function timelinePanel() {
+  const M = state.M, cr = curR();
+  return '<section class="panel"><div class="panel-head"><h2>Season 1 timeline</h2><p>Rounds run Saturday to Friday. Results open for everyone at ' + esc(revealText(1).split(' · ')[1]) + ' on reveal day.</p></div><div class="timeline">' + M.rounds.map(r => {
+    const done = SQ.revealOpen(M, r.n), rel = SQ.released(M, r.n), live = SQ.roundStarted(M, r.n) && !SQ.roundEnded(M, r.n);
+    return '<div class="tl-r ' + (done ? 'done' : r.n === cr ? 'cur' : '') + '"><span class="tiny muted" style="font-weight:800">ROUND ' + r.n + (r.n === M.rounds.length ? ' · FINALE' : '') + '</span><b>' + fmt(r.start) + ' – ' + fmt(r.end) + '</b><span class="small">Reveal ' + fmtDay(r.reveal) + '</span><span>' + (done ? '<span class="tag ok">Results out · locked</span>' : rel ? '<span class="tag grape">Released · opens ' + fmt(r.reveal) + '</span>' : live ? '<span class="tag info">Live</span>' : SQ.roundEnded(M, r.n) ? '<span class="tag warn">Ended · to release</span>' : '<span class="tag">Upcoming</span>') + '</span></div>';
+  }).join('') + '</div></section>';
+}
+/* ===================================================================
+   part 4: mentor
+   =================================================================== */
+function vMentor() {
+  const M = state.M, D = state.D, msgs = D.messages || [];
+  const newT = msgs.filter(t => t.status === 'new').length, um = SQ.unmarkedList(M);
+  const tabs = [['today', 'Today'], ['attendance', 'Attendance', um.length || ''], ['messages', 'Messages', newT || ''], ['students', 'Students'], ['canva', 'Canva check'], ['appreciate', 'Appreciation'], ['habits', 'Habits'], ['results', 'Results & posters'], ['board', 'Leaderboard'], ['marks', 'Marks']];
+  if (!tabs.some(t => t[0] === state.view)) state.view = 'today';
+  let b = ''; const v = state.view;
+  if (v === 'today') {
+    const nr = SQ.nextRoutine(M, M.today), act = SQ.activeOn(M, M.today);
+    const cr = curR(), cvDone = ACTIVE().filter(s => M.marks[s.id].C[cr - 1] === 'Approved').length;
+    b += '<div class="kpis">' + kpi('Classes to mark', um.length, 'attendance not entered', um.length ? 'bad' : 'ok', 'st-tab', 'attendance') + kpi('New messages', newT, msgs.filter(t => t.status === 'assigned').length + ' with teachers / admin', newT ? 'warn' : 'ok', 'st-tab', 'messages') + kpi('Canva photos', cvDone + '/' + ACTIVE().length, 'approved this round', '', 'st-tab', 'canva') + kpi('Habits', act.length + ' active', 'Next: ' + (nr ? nr.n + ' · ' + fmt(nr.start) : '—'), '', 'st-tab', 'habits') + '</div>';
+    b += '<div class="g2"><section class="panel"><div class="panel-head"><h2>Attendance not entered yet</h2><button class="btn sm" data-act="st-tab" data-k="attendance">Open attendance</button></div>' + (um.length ? '<div class="alist">' + um.slice(0, 30).map(x => '<div class="aitem"><span class="tag ' + (x.kind === 'R' ? 'grape' : x.kind === 'Q' ? 'info' : 'warn') + '">' + KINDN[x.kind] + (x.kind === 'R' ? ' ' + (x.slot + 1) : '') + '</span><div><b>' + esc(glabel(x.kind, x.g)) + '</b> <span class="small muted">' + (x.date ? fmtDay(x.date) : weekLabel(x.w)) + '</span></div><button class="btn sm pri" data-act="att-open" data-k="' + esc(JSON.stringify([x.kind, x.g, x.w, x.slot || 0])) + '">Mark now</button></div>').join('') + '</div>' : '<p class="muted" style="font-weight:700">All classes are marked. 🎉</p>') + '</section>';
+    b += '<section class="panel"><div class="panel-head"><h2>Messages waiting</h2><button class="btn sm" data-act="st-tab" data-k="messages">Open inbox</button></div><div class="alist">' + (msgs.filter(t => t.status === 'new' || t.status === 'assigned').map(t => { const s = SID()[t.sid] || { id: t.sid, name: t.sid }; return '<button class="aitem" style="border:0;background:none;text-align:left" data-act="th-open" data-k="' + esc(t.id) + '">' + av(s, 32) + '<div><b>' + esc(s.name) + '</b> <span class="tag ' + (t.cat === 'Leave notice' ? 'info' : '') + '">' + esc(t.cat) + '</span>' + (t.status === 'assigned' ? ' <span class="tag grape">With ' + esc(t.assignee) + '</span>' : '') + '</div><span class="tiny muted">' + fmt(t.date) + '</span><div class="why">' + esc(t.text.slice(0, 90)) + (t.text.length > 90 ? '…' : '') + '</div></button>'; }).join('') || '<p class="muted" style="font-weight:700">No messages waiting.</p>') + '</div></section></div>';
+    const wl = watchList();
+    if (wl.length) b += '<section class="panel"><div class="panel-head"><h2>Watch list</h2><p>Children who may be slipping. Call the family.</p></div><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Child</th><th>Batch</th><th>Why</th><th></th></tr></thead><tbody>' + wl.slice(0, 25).map(w => '<tr><td>' + whoCell(w.s, w.s.id + (w.s.region === 'GCC' ? ' · GCC' : '')) + '</td><td>' + esc(w.s.type === 'Individual' ? 'Individual' : w.s.batch) + '</td><td><div class="row">' + w.why.map(x => '<span class="tag bad">' + esc(x) + '</span>').join('') + '</div></td><td><button class="btn sm" data-act="open-st" data-id="' + w.s.id + '">Profile</button></td></tr>').join('') + '</tbody></table></div></section>';
+  }
+  if (v === 'attendance') b += mentorAttendance();
+  if (v === 'messages') b += mentorMessages();
+  if (v === 'students') b += mentorStudents();
+  if (v === 'canva') b += mentorCanva();
+  if (v === 'appreciate') b += mentorAppreciate();
+  if (v === 'habits') b += mentorHabits();
+  if (v === 'results') b += mentorResults();
+  if (v === 'board') b += lbClassPanel(SQ.CLASSES.slice(), true);
+  if (v === 'marks') b += mentorMarks();
+  return staffShell(state.user, 'Mentor · all classes · ' + ACTIVE().length + ' children', tabs, b);
+}
+function watchList() {
+  const M = state.M, out = [], cw = SQ.curWeek(M), hs = state.D.hs || {};
+  ACTIVE().forEach(s => {
+    const why = [], m = M.marks[s.id], g = SQ.groupOf(s, 'T');
+    const lastT = []; for (let w = cw; w >= 1 && lastT.length < 2; w--) { const t = m.T[w - 1]; if (t != null) lastT.push(t); }
+    if (lastT.length === 2 && lastT.every(t => t === 0)) why.push('Missed last 2 live classes');
+    const lastA = []; for (let w = cw; w >= 1 && lastA.length < 2; w--) { const a = m.A[w - 1]; if (a && a[0]) lastA.push(a[0]); }
+    if (lastA.length === 2 && lastA.every(a => a === 'miss')) why.push('No activity in last 2');
+    const h = hs[s.id]; if (cw >= 1 && h) { const gap = h.lastCheck ? SQ.diffDays(h.lastCheck, M.today) : 99; if (gap >= 5) why.push(gap > 30 ? 'Never checked in habits' : 'No habit check-in for ' + gap + ' days'); }
+    if (why.length >= 2 || why.some(w => w.indexOf('Missed') === 0)) out.push({ s, why });
+  });
+  return out.sort((a, b) => b.why.length - a.why.length);
+}
+
+/* ----- attendance ----- */
+function leaveFor(s, kind, w) {
+  const M = state.M, wk = SQ.week(M, w); if (!wk) return null;
+  const cd = SQ.classDate(M, kind, SQ.groupOf(s, kind), w);
+  return (state.D.messages || []).find(t => t.sid === s.id && t.cat === 'Leave notice' && t.approved && t.leave && (cd ? t.leave === cd : t.leave >= wk.start && t.leave <= wk.end)) || null;
+}
+function attInit() {
+  const A = state.att, M = state.M, kids = SQ.groupKids(M, A.kind, A.g).slice().sort((a, b) => a.name < b.name ? -1 : 1), i = A.w - 1, dr = {};
+  let any = false;
+  kids.forEach(s => {
+    const m = M.marks[s.id]; const v = A.kind === 'T' ? m.T[i] : A.kind === 'Q' ? m.Q[i][0] : m.R[i][A.slot];
+    if (v != null) any = true;
+    const lesson = A.kind === 'Q' ? !!m.Q[i][1] : false, lv = A.kind !== 'R' && leaveFor(s, A.kind, A.w);
+    dr[s.id] = v == null ? { on: !lv, p: 100, ex: !!lv, lesson: false, leave: !!lv } : { on: typeof v === 'number' && v > 0, p: typeof v === 'number' && v > 0 ? v : 100, ex: v === 'E', lesson, leave: !!lv };
+  });
+  A.draft = dr; A.saved = any; A.key = [A.kind, A.g, A.w, A.slot].join('|'); A.confirm = false;
+}
+function mentorAttendance() {
+  const A = state.att, M = state.M, groups = SQ.groupsFor(M, A.kind);
+  if (!groups.includes(A.g)) A.g = groups[0];
+  if (!A.w) A.w = curW();
+  const key = [A.kind, A.g, A.w, A.slot].join('|'); if (!A.draft || A.key !== key) attInit();
+  let b = '<section class="panel"><div class="panel-head"><h2>Attendance</h2><p>Everyone starts as present at 100%. Untick the absent children and change the % for anyone who left early.</p></div>';
+  b += '<div class="att-head"><div class="seg" role="group">' + ['T', 'Q', 'R'].map(k => '<button data-act="att-kind" data-k="' + k + '" aria-pressed="' + (A.kind === k) + '">' + KINDN[k] + '</button>').join('') + '</div>' +
+    '<select class="inp" data-chg="att-g" aria-label="Group" style="width:auto">' + groups.map(g => '<option value="' + esc(g) + '"' + (g === A.g ? ' selected' : '') + '>' + esc(glabel(A.kind, g)) + '</option>').join('') + '</select>' +
+    (A.kind === 'R' ? '<div class="seg" role="group">' + [0, 1, 2].map(k => '<button data-act="att-slot" data-k="' + k + '" aria-pressed="' + (A.slot === k) + '">Rec ' + (k + 1) + '</button>').join('') + '</div>' : '') + '</div>';
+  b += weekChips('att-w', A.w, w => SQ.unmarked(M, A.kind, A.g, w, A.slot) ? 1 : 0).replace(/<span class="tag warn">1<\/span>/g, '<span class="tag warn">Not marked</span>');
+  const dr = A.draft, ids = Object.keys(dr);
+  if (!ids.length) return b + '<p class="muted" style="font-weight:700">No children in this group.</p></section>';
+  const cd = SQ.classDate(M, A.kind, A.g, A.w), teacher = SQ.teacherOf(M, A.kind, A.g);
+  const pres = ids.filter(i => dr[i].on).length, ex = ids.filter(i => !dr[i].on && dr[i].ex).length;
+  b += '<div class="row between"><b>' + esc(glabel(A.kind, A.g)) + ' · ' + KINDN[A.kind] + (A.kind === 'R' ? ' ' + (A.slot + 1) : '') + ' · ' + (cd ? fmtDay(cd) : weekLabel(A.w)) + (teacher ? ' · ' + esc(teacher) : '') + ' ' + (A.saved ? '<span class="tag ok">Saved before</span>' : '<span class="tag warn">Not marked</span>') + '</b><div class="row"><span class="small muted" style="font-weight:800">Set everyone present to</span>' + [100, 75, 50, 25].map(p => '<button class="btn sm" data-act="att-all" data-k="' + p + '">' + p + '%</button>').join('') + '</div></div><div>';
+  const max = A.kind === 'T' ? M.P.T : A.kind === 'Q' ? M.P.Q : M.P.R;
+  b += ids.map(id => {
+    const s = SID()[id], r = dr[id]; const pts = r.on ? r1(max * r.p / 100 + (A.kind === 'Q' && r.lesson ? M.P.L : 0)) : 0;
+    return '<div class="att-row' + (r.on ? '' : ' off') + '"><input type="checkbox" class="cb" data-chg="at-on" data-id="' + id + '"' + (r.on ? ' checked' : '') + ' aria-label="' + esc(s.name) + ' present">' + whoCell(s, s.id + (r.leave ? ' · leave approved' : '')) +
+      '<select class="pct" data-chg="at-p" data-id="' + id + '"' + (r.on ? '' : ' disabled') + ' aria-label="How much of the class">' + [100, 75, 50, 25].map(p => '<option value="' + p + '"' + (r.p === p ? ' selected' : '') + '>' + p + '%</option>').join('') + '</select>' +
+      (A.kind === 'Q' ? '<span class="tri"><button class="on" data-act="at-lesson" data-id="' + id + '" aria-pressed="' + (r.on && r.lesson) + '"' + (r.on ? '' : ' disabled') + '>' + (r.lesson ? '✓ Lesson cleared' : 'Lesson cleared?') + '</button></span>' : '<span></span>') +
+      (r.on ? '<span class="tag ok">' + pts + ' pts</span>' : '<button class="tag ' + (r.ex ? 'info' : 'bad') + '" data-act="at-ex" data-id="' + id + '" style="border:0;cursor:pointer" title="Tap to switch between Absent and Excused">' + (r.ex ? 'Excused' : 'Absent') + '</button>') + '</div>';
+  }).join('') + '</div>';
+  b += '<div class="sum-bar"><span style="font-weight:800">Present <b>' + pres + '</b> · Absent <b>' + (ids.length - pres - ex) + '</b>' + (ex ? ' · Excused <b>' + ex + '</b>' : '') + ' of ' + ids.length + '</span><button class="btn pri" data-act="att-submit"' + (state.busy ? ' disabled' : '') + '>' + (state.busy ? 'Saving…' : A.saved ? 'Save changes' : 'Submit attendance') + '</button></div>';
+  if (A.confirm) b += '<div class="confirm">All ' + ids.length + ' children are marked present. Is that right?<div class="row"><button class="btn pri" data-act="att-confirm">Yes, submit</button><button class="btn" data-act="att-cancel">Go back</button></div></div>';
+  return b + '</section>';
+}
+function saveAttendance() {
+  const A = state.att, M = state.M, dr = A.draft, i = A.w - 1;
+  const rows = Object.keys(dr).map(id => ({ id, v: dr[id].on ? dr[id].p : dr[id].ex ? 'E' : 0, lesson: dr[id].on && dr[id].lesson }));
+  A.confirm = false;
+  save('att.save', { kind: A.kind, w: A.w, slot: A.slot, group: A.g, rows }, 'Saved: ' + rows.filter(r => typeof r.v === 'number' && r.v > 0).length + ' present, ' + rows.filter(r => r.v === 0).length + ' absent. Points updated.', () => {
+    rows.forEach(r => { const m = M.marks[r.id]; if (A.kind === 'T') m.T[i] = r.v; else if (A.kind === 'Q') m.Q[i] = [r.v, r.lesson ? 1 : 0]; else m.R[i][A.slot] = r.v; });
+    A.saved = true;
+  });
+}
+
+/* ----- messages ----- */
+function mentorMessages() {
+  const M = state.M, order = { new: 0, assigned: 1, done: 2, closed: 3 };
+  const T = (state.D.messages || []).slice().sort((a, b) => (order[a.status] || 0) - (order[b.status] || 0) || (a.date < b.date ? 1 : -1));
+  const open = T.find(t => t.id === state.msgOpen) || T[0];
+  const stTag = t => t.status === 'new' ? '<span class="tag warn">New</span>' : t.status === 'assigned' ? '<span class="tag grape">With ' + esc(t.assignee) + '</span>' : t.status === 'done' ? '<span class="tag ok">Done by ' + esc(t.doneBy) + '</span>' : '<span class="tag">Closed</span>';
+  if (!T.length) return '<section class="panel"><h2>Inbox</h2><p class="muted" style="font-weight:700">No messages from parents yet.</p></section>';
+  let b = '<div class="g2"><section class="panel"><div class="panel-head"><h2>Inbox</h2><p>' + T.filter(t => t.status === 'new').length + ' new · ' + T.filter(t => t.status === 'assigned').length + ' with teachers / admin</p></div><div class="alist">' + T.map(t => { const s = SID()[t.sid] || { id: t.sid, name: t.sid }; return '<button class="aitem" style="border:0;background:' + (open === t ? 'var(--sky-soft)' : 'none') + ';text-align:left;border-radius:12px;padding-inline:8px" data-act="th-open" data-k="' + esc(t.id) + '">' + av(s, 32) + '<div><b>' + esc(s.name) + '</b> <span class="tag ' + (t.cat === 'Leave notice' ? 'info' : t.cat === 'Concern' ? 'bad' : '') + '">' + esc(t.cat) + '</span> <span class="tiny muted">' + fmt(t.date) + '</span></div>' + stTag(t) + '</button>'; }).join('') + '</div></section>';
+  const s = SID()[open.sid] || { id: open.sid, name: open.sid };
+  const names = M.staff.filter(x => x.active && !/mentor|admin/i.test(x.role)).map(x => x.name).concat(['Admin']);
+  b += '<section class="panel"><div class="panel-head"><h2>' + esc(s.name) + '</h2><p>' + esc(s.cls || '') + ' · ' + esc(s.type === 'Individual' ? 'Individual · ' + s.teacher : s.batch || '') + ' · ' + esc(open.cat) + '</p></div><div class="thread"><div class="msg p">' + esc(open.text) + '<small>Parent · ' + fmtDay(open.date) + (open.leave ? ' · leave on ' + fmtDay(open.leave) : '') + '</small></div>' +
+    (open.reply ? open.reply.split('\n').map(r => '<div class="msg m">' + esc(r) + '<small>Mentor</small></div>').join('') : '') +
+    (open.status === 'done' ? '<div class="msg s">Replied on WhatsApp by ' + esc(open.doneBy) + (open.tnote ? ' · ' + esc(open.tnote) : '') + '</div>' : '') + '</div>';
+  if (open.cat === 'Leave notice' && open.leave) b += open.approved ? '<div class="hint ok">Leave approved for ' + fmtDay(open.leave) + '. That class is marked Excused.</div>' : '<div class="row"><button class="btn pri" data-act="leave-ok" data-k="' + esc(open.id) + '">Approve leave for ' + fmtDay(open.leave) + '</button></div>';
+  b += '<div class="field"><label for="as-who">Assign to a teacher or the admin</label><div class="row"><select class="inp" id="as-who" style="width:auto">' + names.map(n => '<option' + (open.assignee === n ? ' selected' : '') + '>' + esc(n) + '</option>').join('') + '</select><button class="btn" data-act="assign" data-k="' + esc(open.id) + '">' + (open.status === 'assigned' ? 'Re-assign' : 'Assign') + '</button></div><span class="small muted">They reply to the parent on WhatsApp and mark it done in their app.</span></div>';
+  if (open.status === 'assigned') b += '<div class="hint grape">Waiting for ' + esc(open.assignee) + (open.assignedAt ? ' since ' + esc(open.assignedAt) : '') + '.</div>';
+  b += '<div class="field"><span class="lbl">Quick replies</span><div class="row">' + ['Thank you, we have noted it.', 'Get well soon! Marked as excused.', 'Your teacher will contact you on WhatsApp today.', 'Jazakallah khair! We are proud of your child.'].map(q => '<button class="chip" data-act="qr" data-k="' + esc(q) + '">' + esc(q) + '</button>').join('') + '</div></div><form data-form="reply" data-id="' + esc(open.id) + '" novalidate class="row"><input class="inp grow" id="rp-text" name="text" placeholder="Reply to the parent in the app…" aria-label="Reply"><button class="btn pri" type="submit"' + (state.busy ? ' disabled' : '') + '>Send</button></form><div class="row">' + (open.status !== 'closed' ? '<button class="btn sm" data-act="th-close" data-k="' + esc(open.id) + '">Close</button>' : '') + (SID()[open.sid] ? '<button class="btn sm" data-act="open-st" data-id="' + s.id + '">Open profile</button>' : '') + '</div></section>';
+  return b + '</div>';
+}
+
+/* ----- students ----- */
+function mentorStudents() {
+  const M = state.M, f = state.stf, q = f.q.toLowerCase(), cr = curR();
+  const L = M.students.filter(s => (!f.cls || s.cls === f.cls) && (!f.st || s.status === f.st) && (!q || s.name.toLowerCase().includes(q) || s.id.toLowerCase().includes(q)) && (!f.band || SQ.score(M, s, cr).band === f.band))
+    .sort((a, b) => (a.cls + a.name) < (b.cls + b.name) ? -1 : 1);
+  const hs = state.D.hs || {};
+  let b = '<section class="panel"><div class="row between"><div class="row"><input class="inp" style="max-width:240px" id="sf-q" data-inp="sf" data-k="q" placeholder="Search name or Qaaf ID" value="' + esc(f.q) + '" aria-label="Search"><select class="inp" style="width:auto" data-chg="sf" data-k="cls" aria-label="Class"><option value="">All classes</option>' + SQ.CLASSES.map(c => '<option' + (f.cls === c ? ' selected' : '') + '>' + c + '</option>').join('') + '</select><select class="inp" style="width:auto" data-chg="sf" data-k="st" aria-label="Status"><option value="Active"' + (f.st === 'Active' ? ' selected' : '') + '>Active</option><option value="Left"' + (f.st === 'Left' ? ' selected' : '') + '>Left</option><option value=""' + (!f.st ? ' selected' : '') + '>All</option></select><select class="inp" style="width:auto" data-chg="sf" data-k="band" aria-label="Band"><option value="">All bands</option>' + SQ.BANDS.map(k => '<option value="' + k + '"' + (f.band === k ? ' selected' : '') + '>' + SQ.BANDN[k] + '</option>').join('') + '</select><span class="small muted" style="font-weight:800">' + L.length + ' children</span></div><button class="btn pri" data-act="st-add">+ Add a child</button></div>';
+  b += '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Child</th><th>Class</th><th>Tarbiya</th><th>Thartheel</th><th class="n">R' + cr + '</th><th>Band</th><th class="n">Stars</th></tr></thead><tbody>' + L.map(s => {
+    const sc = SQ.score(M, s, cr);
+    return '<tr class="click" data-act="open-st" data-id="' + s.id + '"><td>' + whoCell(s, s.id + (s.region === 'GCC' ? ' · GCC' : '') + (s.status !== 'Active' ? ' · ' + s.status : '')) + '</td><td>' + esc(s.cls) + '</td><td>' + esc(s.type === 'Individual' ? 'Individual · ' + s.teacher : s.batch) + '</td><td>' + esc(s.thg || '—') + '</td><td class="n"><b>' + (sc.max ? Math.round(sc.pct) : '–') + '</b></td><td>' + bandTag(sc.band) + '</td><td class="n">' + SQ.starsOf(M, s, hs[s.id]) + '</td></tr>';
+  }).join('') + '</tbody></table></div></section>';
+  return b;
+}
+function studentForm(s) {
+  const M = state.M, x = s || { id: '', name: '', cls: 'Root 1', type: 'Batch', batch: '', teacher: '', med: 'Malayalam', thg: '', thl: '', region: 'India', fam: '', status: 'Active', notes: '' };
+  const opt = (arr, v) => arr.map(o => '<option' + (o === v ? ' selected' : '') + '>' + esc(o) + '</option>').join('');
+  const teachers = M.staff.filter(t => t.active && /faculty/i.test(t.role)).map(t => t.name);
+  return '<div class="row between"><h2 style="font-size:22px">' + (s ? 'Edit ' + esc(s.name) : 'Add a child') + '</h2><button class="x" data-act="close" aria-label="Close">×</button></div>' +
+    '<form data-form="student" data-orig="' + esc(s ? s.id : '') + '" novalidate style="display:grid;gap:10px">' +
+    '<div class="g2"><div class="field"><label for="sf-id">Qaaf ID</label><input class="inp" id="sf-id" name="id" value="' + esc(x.id) + '" placeholder="QF26301"></div><div class="field"><label for="sf-name">Name</label><input class="inp" id="sf-name" name="name" value="' + esc(x.name) + '"></div></div>' +
+    '<div class="g2"><div class="field"><label for="sf-cls">Class</label><select class="inp" id="sf-cls" name="cls">' + opt(SQ.CLASSES, x.cls) + '</select></div><div class="field"><label for="sf-type">Type</label><select class="inp" id="sf-type" name="type" data-chg="sf-type">' + opt(['Batch', 'Individual'], x.type) + '</select></div></div>' +
+    '<div class="g2"><div class="field"><label for="sf-batch">Batch (for batch children)</label><select class="inp" id="sf-batch" name="batch"><option value="">—</option>' + opt(M.batches.filter(b => b.name !== 'Individual').map(b => b.name), x.batch) + '</select></div><div class="field"><label for="sf-teacher">Individual teacher</label><select class="inp" id="sf-teacher" name="teacher"><option value="">—</option>' + opt(teachers, x.teacher) + '</select></div></div>' +
+    '<div class="g2"><div class="field"><label for="sf-med">Medium</label><select class="inp" id="sf-med" name="med">' + opt(['Malayalam', 'English'], x.med) + '</select></div><div class="field"><label for="sf-thg">Thartheel group</label><select class="inp" id="sf-thg" name="thg"><option value="">—</option>' + opt(M.thGroups.map(g => g.name), x.thg) + '</select></div></div>' +
+    '<div class="g2"><div class="field"><label for="sf-thl">Thartheel level</label><input class="inp" id="sf-thl" name="thl" value="' + esc(x.thl) + '" inputmode="numeric"></div><div class="field"><label for="sf-region">Region</label><select class="inp" id="sf-region" name="region">' + opt(['India', 'GCC'], x.region) + '</select></div></div>' +
+    '<div class="g2"><div class="field"><label for="sf-fam">Family ID (same for brothers and sisters)</label><input class="inp" id="sf-fam" name="fam" value="' + esc(x.fam) + '"></div><div class="field"><label for="sf-status">Status</label><select class="inp" id="sf-status" name="status">' + opt(['Active', 'Left'], x.status) + '</select></div></div>' +
+    '<div class="field"><label for="sf-notes">Notes</label><input class="inp" id="sf-notes" name="notes" value="' + esc(x.notes || '') + '" placeholder="Moved to Individual on 2 Nov"></div>' +
+    '<p class="err" id="sf-err" hidden></p><div class="row"><button class="btn pri" type="submit"' + (state.busy ? ' disabled' : '') + '>' + (s ? 'Save changes' : 'Add child') + '</button><button class="btn" type="button" data-act="close">Cancel</button></div>' +
+    '<p class="small muted">Changes count from today. Marks already given stay as they are. To remove a child, set Status to Left.</p></form>';
+}
+
+/* ----- canva ----- */
+function mentorCanva() {
+  const M = state.M, C = state.cv, rn = C.rn || curR();
+  const L = ACTIVE().filter(s => !C.cls || s.cls === C.cls).sort((a, b) => (a.cls + a.name) < (b.cls + b.name) ? -1 : 1);
+  const st = s => M.marks[s.id].C[rn - 1] || '';
+  const n = { a: L.filter(s => st(s) === 'Approved').length, k: L.filter(s => st(s) === 'Ask again').length };
+  const locked = SQ.revealOpen(M, rn);
+  let b = '<section class="panel"><div class="panel-head"><h2>📸 Canva check</h2><p>When a parent sends a photo of the Qaaf Canva board on WhatsApp, find the child here and approve it. +' + M.P.CV + ' points, once per round.</p></div>';
+  b += '<div class="row"><div class="seg" role="group">' + M.rounds.filter(r => SQ.roundStarted(M, r.n) || r.n === 1).map(r => '<button data-act="cv-rn" data-k="' + r.n + '" aria-pressed="' + (r.n === rn) + '">Round ' + r.n + '</button>').join('') + '</div><select class="inp" style="width:auto" data-chg="cv-cls" aria-label="Class"><option value="">All classes</option>' + SQ.CLASSES.map(c => '<option' + (C.cls === c ? ' selected' : '') + '>' + c + '</option>').join('') + '</select><span class="small muted" style="font-weight:800">Approved ' + n.a + ' · Ask again ' + n.k + ' · Not sent ' + (L.length - n.a - n.k) + '</span></div>';
+  if (locked) b += '<div class="hint">Round ' + rn + ' results are out, so Canva is locked for this round.</div>';
+  b += '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Child</th><th>Class</th><th>Status</th><th></th></tr></thead><tbody>' + L.map(s => { const v = st(s); return '<tr><td>' + whoCell(s) + '</td><td>' + esc(s.cls) + '</td><td>' + (v === 'Approved' ? '<span class="tag ok">✓ Approved</span>' : v === 'Ask again' ? '<span class="tag warn">Asked again</span>' : '<span class="tag">Not sent</span>') + '</td><td>' + (locked ? '' : '<div class="row">' + (v !== 'Approved' ? '<button class="btn sm pri" data-act="cv-set" data-id="' + s.id + '" data-k="Approved">Approve</button>' : '') + (v === '' ? '<button class="btn sm" data-act="cv-set" data-id="' + s.id + '" data-k="Ask again">Ask again</button>' : '<button class="btn sm" data-act="cv-set" data-id="' + s.id + '" data-k="">Clear</button>') + '</div>') + '</td></tr>'; }).join('') + '</tbody></table></div></section>';
+  return b;
+}
+
+/* ----- appreciation ----- */
+function mentorAppreciate() {
+  const M = state.M, cr = curR(), r = SQ.round(M, cr), kids = ACTIVE().slice().sort((a, b) => a.name < b.name ? -1 : 1);
+  const opts = kids.map(s => '<option value="' + s.id + '">' + esc(s.name) + ' · ' + esc(s.cls) + '</option>').join('');
+  const given = (M.bonus || []).filter(x => x.date >= r.start && x.date <= r.end).sort((a, b) => a.date < b.date ? 1 : -1);
+  let b = '<div class="g2"><section class="panel"><div class="panel-head"><h2>💚 Mentor Appreciation</h2><p>Once per child per round. +' + M.P.MA + ' points.</p></div><form data-form="bonus" data-type="mentor" novalidate style="display:grid;gap:10px"><div class="field"><label for="ap-sid">Child</label><select class="inp" id="ap-sid" name="sid">' + opts + '</select></div><div class="field"><label for="ap-r">Reason (the parent sees it)</label><input class="inp" id="ap-r" name="note" value="Always kind and helpful to friends"></div><button class="btn pri" type="submit"' + (state.busy ? ' disabled' : '') + '>Give appreciation</button></form></section>';
+  b += '<section class="panel"><div class="panel-head"><h2>🖼 Activity of the Week</h2><p>For outstanding activity work. +' + M.P.AW + ' points.</p></div><form data-form="bonus" data-type="aotw" novalidate style="display:grid;gap:10px"><div class="field"><label for="aw-sid">Child</label><select class="inp" id="aw-sid" name="sid">' + opts + '</select></div><div class="field"><label for="aw-r">What was special?</label><input class="inp" id="aw-r" name="note" value="Beautiful and creative work"></div><button class="btn pri" type="submit"' + (state.busy ? ' disabled' : '') + '>Give Activity of the Week</button></form></section></div>';
+  b += '<section class="panel"><div class="panel-head"><h2>Bonus given this round</h2><p>Shine Stars, appreciation and Activity of the Week together count up to ' + M.P.CAP + ' points per child per round.</p></div><div class="alist">' + (given.slice(0, 40).map(x => { const s = SID()[x.id] || { id: x.id, name: x.id }; return '<div class="aitem">' + av(s, 28) + '<div><b>' + esc(s.name) + '</b> · ' + (x.type === 'shine' ? '⭐ Shine Star' : x.type === 'mentor' ? '💚 Mentor Appreciation' : '🖼 Activity of the Week') + (x.note ? ' <span class="small muted">' + esc(x.note) + '</span>' : '') + '</div><span class="tiny muted">' + fmt(x.date) + ' · ' + esc(x.by) + '</span></div>'; }).join('') || '<p class="muted">None yet.</p>') + '</div></section>';
+  return b;
+}
+
+/* ----- habits ----- */
+function mentorHabits() {
+  const M = state.M, act = SQ.activeOn(M, M.today), nr = SQ.nextRoutine(M, M.today), ph = SQ.phaseFor(act.length), hs = state.D.hs || {};
+  const status = h => !h.on ? '<span class="tag">Off</span>' : !h.start ? '<span class="tag">Not scheduled</span>' : h.start <= M.today ? '<span class="tag ok">Active</span>' : '<span class="tag info">Starts ' + fmt(h.start) + '</span>';
+  const rate = avg(ACTIVE().map(s => ((hs[s.id] || { checkins7: 0 }).checkins7) / 7));
+  let b = '<div class="kpis">' + kpi('Active today', act.length, 'routines in the check-in') + kpi('NEW tag on', M.habits.filter(h => h.isNew).map(h => h.e + ' ' + h.n).join(', ') || '—', 'you choose') + kpi('Next routine', nr ? nr.e + ' ' + nr.n : '—', nr ? 'starts ' + fmtDay(nr.start) : '') + kpi('Habit tree', SQ.PHASES[ph].e + ' ' + SQ.PHASES[ph].n, 'set by the number of routines') + kpi('Check-in rate', Math.round(rate * 100) + '%', 'families, last 7 days') + '</div>';
+  b += '<div class="hab-g"><section class="panel"><div class="panel-head"><h2>Habit plan</h2><p>Each routine turns on by itself on its start date. Switch one off, change a date, or choose which ones show the NEW tag.</p></div><div class="routine-set">' + M.habits.map(h => '<div class="plan-row plan6' + (h.on ? '' : ' off') + '"><button class="switch" role="switch" aria-checked="' + h.on + '" aria-label="' + esc(h.n) + ' on or off" data-act="hp-on" data-k="' + h.no + '"></button><span class="em">' + h.e + '</span><div style="min-width:0"><b>' + h.no + '. ' + esc(h.n) + '</b><div class="tiny muted">Badge: ' + esc(h.b) + '</div></div><input type="date" data-chg="hp-date" data-k="' + h.no + '" value="' + (h.start || '') + '" aria-label="Start date for ' + esc(h.n) + '"><button class="chip" data-act="hp-new" data-k="' + h.no + '" aria-pressed="' + h.isNew + '">NEW tag</button>' + status(h) + '</div>').join('') + '</div></section>';
+  const nw = newHabits(M.today);
+  b += '<section class="panel"><h2>What parents see today</h2><div class="routines" style="max-width:380px">' + act.map(no => { const h = SQ.habit(M, no); return '<div class="rt">' + (nw.includes(no) ? '<span class="new">NEW</span>' : '') + '<span class="chk"></span><span class="em">' + h.e + '</span><span class="rn">' + esc(h.n) + '</span></div>'; }).join('') + '</div><div class="hint">“All done” means all ' + act.length + ' routines. A streak day needs at least ' + Math.ceil(act.length * (M.streakShare || .5)) + '.</div>' +
+    '<h3>Season plan</h3><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Round</th><th>New routine</th><th class="n">Active</th></tr></thead><tbody>' + M.rounds.map(r => { const a = SQ.activeOn(M, r.end); const nwr = M.habits.filter(h => h.on && h.start && h.start >= SQ.addDays(r.start, -1) && h.start <= r.end); return '<tr><td>Round ' + r.n + ' · ' + fmt(r.start) + '</td><td>' + (nwr.map(h => h.e + ' ' + esc(h.n) + ' (' + fmt(h.start) + ')').join(', ') || '—') + '</td><td class="n">' + a.length + '</td></tr>'; }).join('') + '</tbody></table></div></section></div>';
+  return b;
+}
+
+/* ----- results ----- */
+function mentorResults() {
+  const M = state.M, D = state.D;
+  let b = timelinePanel();
+  M.rounds.forEach(r => {
+    if (!SQ.roundEnded(M, r.n) || SQ.revealOpen(M, r.n)) return;
+    const ws = SQ.roundWeeks(r.n), um = [];
+    ws.forEach(w => { ['T', 'Q'].forEach(k => SQ.groupsFor(M, k).forEach(g => { if (SQ.unmarked(M, k, g, w)) um.push(1); })); SQ.CLASSES.forEach(c => [0, 1, 2].forEach(sl => { if (SQ.unmarked(M, 'R', c, w, sl)) um.push(1); })); });
+    const ua = sum(ws.map(w => sum(SQ.groupsFor(M, 'T').map(g => SQ.activityToMark(M, g, w)))));
+    const ch = (D.choices || {})[r.n] || {}, rel = SQ.released(M, r.n);
+    b += '<section class="panel"><div class="panel-head"><h2>Round ' + r.n + ' · get results ready</h2><p>Results open for everyone at ' + esc(revealText(r.n)) + '.</p></div><div class="alist">' +
+      '<div class="aitem"><span>✅</span><div><b>Check the marks</b><p class="small muted">' + um.length + ' classes without attendance · ' + ua + ' activity marks missing</p></div>' + (um.length || ua ? '<span class="tag warn">Not ready</span>' : '<span class="tag ok">Ready</span>') + '</div></div>';
+    b += '<h3>Mentor’s Choice and Best Canva Board</h3><p class="small muted">One per class. Choose a child who has not won Top 3 or Streak Master this round.</p><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Class</th><th>💚 Mentor’s Choice</th><th>🏠 Best Canva Board</th></tr></thead><tbody>' + SQ.CLASSES.map(c => {
+      const L = SQ.rankList(M, r.n, c), top3 = L.slice(0, 3).map(x => x.s.id), cv = L.filter(x => M.marks[x.s.id].C[r.n - 1] === 'Approved' && !top3.includes(x.s.id)), c2 = ch[c] || {};
+      return '<tr><td><b>' + c + '</b></td><td><select class="inp" data-chg="choose" data-rn="' + r.n + '" data-cls="' + c + '" data-k="choice" aria-label="Mentor’s Choice ' + c + '"><option value="">None</option>' + L.filter(x => !top3.includes(x.s.id)).map(x => '<option value="' + x.s.id + '"' + (c2.choice === x.s.id ? ' selected' : '') + '>' + esc(x.s.name) + ' · ' + Math.round(x.sc.pct) + '</option>').join('') + '</select></td><td><select class="inp" data-chg="choose" data-rn="' + r.n + '" data-cls="' + c + '" data-k="canva" aria-label="Best Canva ' + c + '"><option value="">None</option>' + cv.map(x => '<option value="' + x.s.id + '"' + (c2.canva === x.s.id ? ' selected' : '') + '>' + esc(x.s.name) + '</option>').join('') + '</select></td></tr>';
+    }).join('') + '</tbody></table></div>';
+    b += '<div class="row" style="margin-top:10px"><button class="btn pri" data-act="release" data-k="' + r.n + '"' + (state.busy ? ' disabled' : '') + '>' + (rel ? '↻ Update Round ' + r.n + ' results' : '🎉 Verify & release Round ' + r.n) + '</button>' + (rel ? '<span class="tag grape">Released · parents see it at ' + esc(revealText(r.n)) + '</span>' : '') + '</div></section>';
+  });
+  const rels = (M.released || []).slice().sort((a, b) => b - a);
+  rels.forEach(rn => {
+    const A = (D.awards || []).filter(a => a.rn === rn).map(a => Object.assign({}, a, { name: nameCase(a.name) }));
+    const P = A.filter(a => SQ.TITLED.includes(a.k));
+    b += '<section class="panel"><div class="panel-head"><h2>Round ' + rn + ' awards & posters</h2><p>' + (SQ.revealOpen(M, rn) ? 'Results are out.' : 'Released. Results open at ' + esc(revealText(rn)) + '.') + ' Tap a poster to share it on WhatsApp.</p></div>' +
+      '<p class="small muted">🎯 Perfect attendance: ' + A.filter(a => a.k === 'perfect').length + ' · 🌟 Gold Club: ' + A.filter(a => a.k === 'gold').length + '</p>' +
+      SQ.CLASSES.map(c => { const L = P.filter(a => a.cls === c && a.k !== 'academy'); return L.length ? '<h3>' + c + '</h3><div class="poster-grid">' + L.map(a => '<button data-act="poster-s" data-k="' + esc(JSON.stringify([a.rn, a.id, a.k])) + '">' + poster(a) + '<span class="small" style="font-weight:800">' + esc(a.name) + '</span></button>').join('') + '</div>' : ''; }).join('') +
+      (A.filter(a => a.k === 'academy').map(a => '<div class="hint grape">👑 Academy Champion: <b>' + esc(a.name) + '</b> (' + esc(a.cls) + ')</div>').join('')) + '</section>';
+  });
+  return b;
+}
+
+/* ----- marks ----- */
+function mentorMarks() {
+  const P = state.M.P, B = state.M.bands, S = state.M.stars;
+  const rows = [['Tarbiya live, full class (× % attended)', P.T], ['Thartheel live, full class (× % attended)', P.Q], ['Thartheel lesson cleared', P.L], ['Recorded class (× % watched)', P.R], ['Activity on time', P.AON], ['Activity late', P.ALATE], ['Quality: Good', P.QG], ['Quality: Excellent', P.QE], ['Quality: Outstanding', P.QO], ['Shine Star', P.SH], ['Mentor Appreciation', P.MA], ['Activity of the Week', P.AW], ['Cap for the 3 above, per round', P.CAP], ['Canva board photo', P.CV], ['Perfect attendance', P.PA]];
+  return '<div class="hint sun">To change points, open the <b>Settings</b> tab in the Google Sheet. Change them only between rounds, so nobody’s rank changes in the middle of a round.</div>' +
+    '<div class="g2"><section class="panel"><h2>Points</h2><div class="tbl-wrap"><table class="tbl pts-tbl"><tbody>' + rows.map(r => '<tr><td>' + r[0] + '</td><td class="n"><b>' + r[1] + '</b></td></tr>').join('') + '</tbody></table></div></section>' +
+    '<section class="panel"><h2>Bands</h2><div class="row">' + ['bronze', 'silver', 'gold', 'diamond'].map(k => '<span class="band b-' + k + '"><i></i>' + SQ.BANDN[k] + ' ' + B[k] + '</span>').join('') + '</div><h2>Stars (not in rank)</h2><p class="small muted">Each routine ' + S.habit + ' · All done +' + S.allDone + ' · Routine badge ' + S.mastery + ' · Weekly award ' + S.weekly + ' · Welcome ' + S.welcome + '</p><h2>Shown in class lists</h2><p class="small muted">' + SQ.CLASSES.map(c => c + ': ' + (c === 'Root 1' ? 'Star Group of ' : 'Top ') + SQ.topN(state.M, c)).join(' · ') + ' · Academy Top ' + SQ.topN(state.M, 'all') + '</p></section></div>';
+}
+
+/* ---------------- profile drawer ---------------- */
+function profile(s) {
+  const M = state.M, hs = (state.D.hs || {})[s.id] || { cur: 0, mastery: [], weekly: [], checkins7: 0, lastCheck: null }, st = SQ.starsOf(M, s, hs);
+  let x = '<div class="row between" style="flex-wrap:nowrap"><div class="row" style="flex-wrap:nowrap">' + av(s, 56) + '<div><h2 style="font-size:22px">' + esc(s.name) + '</h2><span class="small muted" style="font-weight:800">' + s.id + ' · ' + esc(s.cls) + ' · ' + esc(s.type === 'Individual' ? 'Individual · ' + s.teacher : s.batch) + ' · ' + esc(s.thg || 'no Thartheel group') + (s.region === 'GCC' ? ' · GCC' : '') + '</span></div></div><button class="x" data-act="close" aria-label="Close">×</button></div>';
+  if (state.role === 'mentor') x += '<div class="row"><button class="btn sm" data-act="st-edit" data-id="' + s.id + '">✎ Edit details</button>' + '</div>';
+  if (s.status !== 'Active') return x + '<div class="hint coral">Status: ' + esc(s.status) + '. Not shown in the app or the leaderboard.</div>';
+  const rs = M.rounds.filter(r => SQ.roundStarted(M, r.n));
+  x += '<div class="kpis">' + rs.map(r => { const sc = SQ.score(M, s, r.n); return '<div class="kpi"><span>Round ' + r.n + (SQ.roundEnded(M, r.n) ? '' : ' · live') + '</span><b>' + (sc.max ? Math.round(sc.pct) : '–') + '</b><small>' + SQ.BANDN[sc.band] + ' · ' + r1(sc.total) + '/' + sc.max + ' · rank ' + (SQ.rankOf(M, s, r.n) || '–') + '</small></div>'; }).join('') + '<div class="kpi"><span>Stars</span><b>' + st + '</b><small>' + M.levels[SQ.levelOf(M, st)].n + '</small></div><div class="kpi"><span>Habit streak</span><b>' + hs.cur + '</b><small>' + hs.checkins7 + ' of last 7 days</small></div></div>';
+  const cr = curR(), sc = SQ.score(M, s, cr);
+  x += '<section class="panel"><h3>Round ' + cr + ' by pillar</h3><div class="hbars">' + [['Tarbiya', 'T', 'sky'], ['Thartheel', 'Q', 'grape'], ['Recorded', 'R', 'coral'], ['Activity', 'A', 'sun']].map(p => { const g = sc[p[1]], mx = sc[p[1] + 'm']; return '<div class="hbar"><span>' + p[0] + '</span><div class="bar ' + p[2] + '"><span style="width:' + (mx ? g / mx * 100 : 0) + '%"></span></div><span class="v">' + r1(g) + '/' + mx + '</span></div>'; }).join('') + '</div><p class="small muted">Bonus ' + sc.bonus + ' (Shine + appreciation ' + Math.min(sc.sub, M.P.CAP) + ' of max ' + M.P.CAP + (sc.canva ? ' · Canva ' + sc.canva : '') + (sc.perfect ? ' · Perfect attendance ' + sc.perfect : '') + ')</p></section>';
+  const m = M.marks[s.id], cw = Math.max(1, SQ.curWeek(M));
+  const cell = (v, t) => '<i class="' + (v == null ? '' : v === 'E' ? 'e' : v === 0 ? 'x' : v >= 75 ? 'y' : 'p') + '" title="' + esc(t) + (v == null ? ' · not marked' : v === 'E' ? ' · excused' : v === 0 ? ' · absent' : ' · ' + v + '%') + '">' + (v == null ? '·' : '') + '</i>';
+  const weeks = []; for (let w = 1; w <= cw; w++) weeks.push(w);
+  x += '<section class="panel"><h3>Classes by week (W1–W' + cw + ')</h3><span class="small muted">Tarbiya</span><div class="strip">' + weeks.map(w => cell(m.T[w - 1], 'W' + w)).join('') + '</div><span class="small muted">Thartheel</span><div class="strip">' + weeks.map(w => cell(m.Q[w - 1][0], 'W' + w + (m.Q[w - 1][1] ? ' · lesson cleared' : ''))).join('') + '</div><span class="small muted">Recorded</span><div class="strip">' + weeks.map(w => [0, 1, 2].map(k => cell(m.R[w - 1][k], 'W' + w + ' Rec ' + (k + 1))).join('')).join('') + '</div><p class="tiny muted">Green 75–100% · yellow 25–50% · red absent · blue excused · grey not marked</p></section>';
+  x += '<section class="panel"><h3>Activity work</h3><div class="alist">' + weeks.slice().reverse().slice(0, 6).map(w => { const a = m.A[w - 1]; return '<div class="aitem"><span class="tiny muted">' + weekLabel(w) + '</span><div></div>' + (a && a[0] ? '<span class="tag ' + (a[0] === 'on' ? 'ok' : a[0] === 'late' ? 'warn' : a[0] === 'E' ? 'info' : 'bad') + '">' + ({ on: 'On time', late: 'Late', miss: 'Missing', E: 'Excused' }[a[0]]) + (a[1] && a[0] !== 'miss' ? ' · ' + SQ.QN[a[1]] : '') + '</span>' : '<span class="tag">Not marked</span>') + '</div>'; }).join('') + '</div></section>';
+  x += '<section class="panel"><h3>Habits</h3><p class="small muted">Streak ' + hs.cur + ' days · last check-in ' + (hs.lastCheck ? fmtDay(hs.lastCheck) : 'never') + ' · ' + hs.mastery.length + ' routine badges · ' + hs.weekly.length + ' weekly awards</p></section>';
+  const T = (state.D.messages || []).filter(t => t.sid === s.id), B = SQ.bonusOf(M, s.id), AW = (state.D.awards || []).filter(a => a.id === s.id);
+  x += '<section class="panel"><h3>Timeline</h3><div class="alist">' + [].concat(T.map(t => ({ d: t.date, h: '💬 ' + esc(t.cat) + ': ' + esc(t.text.slice(0, 70)) + (t.assignee ? ' (assigned to ' + esc(t.assignee) + ')' : '') })), B.map(z => ({ d: z.date, h: (z.type === 'shine' ? '⭐ Shine Star' : z.type === 'mentor' ? '💚 Mentor Appreciation' : '🖼 Activity of the Week') + (z.note ? ' · ' + esc(z.note) : '') + ' (' + esc(z.by) + ')' })), AW.map(a => ({ d: SQ.round(M, a.rn).reveal, h: SQ.AWE[a.k] + ' ' + awardTitle(a) + ' · Round ' + a.rn }))).sort((a, b) => a.d < b.d ? 1 : -1).slice(0, 14).map(e => '<div class="aitem"><span class="tiny muted">' + fmt(e.d) + '</span><div>' + e.h + '</div><span></span></div>').join('') + '</div></section>';
+  return x;
+}
+
+/* ---------------- reveal show ---------------- */
+let RV = null;
+function revealPanel(classes) {
+  const M = state.M, open = (M.released || []).filter(rn => SQ.revealOpen(M, rn)).sort((a, b) => b - a);
+  const cr = curR(), next = M.rounds.find(r => !SQ.revealOpen(M, r.n));
+  let b = '<section class="panel"><div class="panel-head"><h2>🎬 Reveal Show</h2><p>Results open for everyone on reveal Saturday at 7 PM. Play the show in your next live class: share your screen and press Start.</p></div>';
+  if (next) b += '<div class="hint">Round ' + next.n + ' results open <b>' + esc(revealText(next.n)) + '</b>' + (SQ.released(M, next.n) ? ' (released by the mentor)' : '') + '. The show unlocks then.</div>';
+  if (!open.length) return b + '</section>';
+  open.slice(0, 2).forEach(rn => { b += '<h3>Round ' + rn + '</h3><div class="row">' + classes.map(c => '<button class="btn sun" data-act="reveal" data-k="' + esc(JSON.stringify([rn, c])) + '">▶ Round ' + rn + ' · ' + c + '</button>').join('') + '</div>'; });
+  return b + '</section>';
+}
+function revealHtml() {
+  const M = state.M, c = RV.cls, rn = RV.rn, L = (state.D.awards || []).filter(a => a.rn === rn && a.k === 'champ' && a.cls === c).sort((a, b) => (b.place || 0) - (a.place || 0));
+  const R1 = c === 'Root 1' || L.every(a => !a.place);
+  const steps = R1 ? ['intro', 'drum', 'all'] : ['intro', 'drum', 3, 2, 1, 'done']; const st = steps[RV.step];
+  const r = SQ.round(M, rn); let stage = '';
+  const kid = a => ({ id: a.id, name: nameCase(a.name) });
+  if (!L.length) stage = '<div class="rv-title">' + esc(c) + '</div><div class="rv-sub">No champions for this class this round.</div>';
+  else if (st === 'intro') stage = '<div class="rv-sub">ROUND ' + rn + ' · ' + fmt(r.start).toUpperCase() + ' – ' + fmt(r.end).toUpperCase() + '</div><div class="rv-title">' + esc(c) + ' Champions</div>' + hudhud(130) + '<div class="rv-sub">Who earned the most points this round?</div>';
+  else if (st === 'drum') stage = '<div class="drum wiggle">🥁</div><div class="rv-title">Drum roll…</div><div class="rv-sub">' + (R1 ? 'Our Round Champions are…' : 'In third place…') + '</div>';
+  else if (st === 'all') stage = '<div class="rv-title">Round Champions!</div><div class="rv-many">' + L.map(a => '<div class="rv-card pop">' + av(kid(a), 76) + '<div class="nm">' + esc(kid(a).name) + '</div><span class="place" style="background:var(--gold)">Champion</span></div>').join('') + '</div>';
+  else if (st === 'done') stage = '<div class="rv-title">Masha Allah! 🎉</div><div class="rv-many">' + L.slice().reverse().map(a => '<div class="rv-card">' + av(kid(a), 60) + '<div class="nm">' + esc(shortName(kid(a).name)) + '</div><span class="place" style="background:var(--' + ['', 'gold', 'silver', 'bronze'][a.place] + ')">' + ['', '1st', '2nd', '3rd'][a.place] + '</span></div>').join('') + '</div><div class="rv-sub">Posters are ready to share on WhatsApp.</div>';
+  else { const a = L.find(z => z.place === st); stage = a ? '<div class="rv-sub">' + ['', 'FIRST PLACE', 'SECOND PLACE', 'THIRD PLACE'][st] + '</div><div class="rv-card pop">' + av(kid(a), 96) + '<div class="nm">' + esc(kid(a).name) + '</div><span class="place" style="background:var(--' + ['', 'gold', 'silver', 'bronze'][st] + ')">' + ['', '🥇 1st', '🥈 2nd', '🥉 3rd'][st] + '</span><span style="font-weight:800;color:#55647E">Score ' + (a.score == null ? '' : a.score) + '</span></div>' : '<div class="rv-sub">—</div>'; }
+  const last = RV.step >= steps.length - 1;
+  return '<div class="reveal" role="dialog" aria-modal="true" aria-label="Reveal show"><div class="row between"><div class="seg" role="group">' + RV.classes.map(x => '<button data-act="rv-cls" data-k="' + x + '" aria-pressed="' + (x === c) + '">' + x + '</button>').join('') + '</div><button class="x" data-act="rv-close" aria-label="Close">×</button></div><div class="rv-stage">' + stage + '</div><div class="row" style="justify-content:center">' + (L.length ? '<button class="btn sun" data-act="rv-next">' + (last ? 'Play again' : st === 'intro' ? '▶ Start' : 'Next') + '</button>' : '') + '</div></div>';
+}
+/* ===================================================================
+   part 5: render and events
+   =================================================================== */
+function render() {
+  let h = '';
+  if (!state.token) h = vLogin();
+  else if (!state.D) h = '<div class="login"><section class="hero"><span class="wiggle" style="display:inline-block">' + hudhud(96) + '</span><div><h1>Qaaf <span>Star Quest</span></h1><p>' + (state.loading ? 'Loading your stars…' : 'Could not load. Check your internet.') + '</p>' + (state.loading ? '' : '<div class="row"><button class="btn pri" data-act="retry">Try again</button><button class="btn" data-act="logout">Sign out</button></div>') + '</div></section></div>';
+  else if (state.role === 'parent') h = vParent();
+  else if (state.role === 'faculty') h = vFaculty();
+  else if (state.role === 'mentor') h = vMentor();
+  else h = vAdmin();
+  $('#root').innerHTML = h;
+  if (state.drawer && state.D) { const s = SID()[state.drawer]; if (s) $('#layer').innerHTML = '<div class="drawer" role="dialog" aria-modal="true">' + profile(s) + '</div>'; }
+  if (state.edit !== null && state.D) { const s = state.edit ? SID()[state.edit] : null; const keep = $('#layer form[data-form="student"]'); if (!keep) $('#layer').innerHTML = '<div class="modal wide" role="dialog" aria-modal="true">' + studentForm(s) + '</div>'; }
+}
+function go(view) { state.view = view; state.msgOpen = null; render(); window.scrollTo(0, 0); }
+function posterFrom(k) {
+  const p = JSON.parse(k); const a = (state.D.awards || []).find(x => x.rn === p[0] && x.id === p[1] && x.k === p[2]);
+  return a ? Object.assign({}, a, { name: nameCase(a.name) }) : null;
+}
+function showPoster(a) {
+  openLayer('<div class="row between"><h2 style="font-size:20px">' + (SQ.AWE[a.k] || '⭐') + ' ' + esc(awardTitle(a)) + '</h2><button class="x" data-act="close" aria-label="Close">×</button></div>' + poster(a) + '<div class="row"><button class="btn pri grow" data-act="share">Share to WhatsApp</button></div>', 'modal wide');
+  state.posterA = a;
+}
+
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-act]'); if (!t) return;
+  const a = t.dataset.act, k = t.dataset.k, id = t.dataset.id, M = state.M;
+  switch (a) {
+    case 'pick-role': state.login = { role: k || null, err: '', names: null, pin: '', pick: null, id: state.login.id, busy: false }; render(); break;
+    case 'pick-name': state.login.pick = k; render(); break;
+    case 'logout': signOut(false); break;
+    case 'retry': boot(); break;
+    case 'refresh': state.loading = true; render(); boot(true); break;
+    case 'install': if (deferredInstall) { deferredInstall.prompt(); deferredInstall = null; render(); } break;
+    case 'hide-install': store.set('hideInstall', true); render(); break;
+    /* parent */
+    case 'switch-kid': state.kid = id; state.view = 'home'; render(); window.scrollTo(0, 0); break;
+    case 'k-tab': {
+      state.view = k;
+      if (k === 'msg') { const seen = store.get('seen', {}); (state.D.messages || []).forEach(m => { if (m.sid === state.kid) seen[m.id] = m.status + (m.reply || '').length; }); store.set('seen', seen); }
+      render(); window.scrollTo(0, 0); break;
+    }
+    case 'ck-date': state.ckDate = k; render(); break;
+    case 'ck-tog': toggleHabit(kidOf(), +k, false); break;
+    case 'ck-all': toggleHabit(kidOf(), 0, true); break;
+    case 'dua': { const h = SQ.habit(M, +k); if (h) openLayer(duaHtml(h)); break; }
+    case 'lb-tab': state.lbTab = k; render(); break;
+    case 'lb-round': state.lbRound = +k; render(); break;
+    case 'lb-class': state.lbClass = k; render(); break;
+    case 'poster': { const aw = myAwards(kidOf())[+t.dataset.i]; if (aw) showPoster(Object.assign({}, aw, { name: nameCase(aw.name) })); break; }
+    case 'poster-s': { const aw = posterFrom(k); if (aw) showPoster(aw); break; }
+    case 'share': if (state.posterA) sharePoster(state.posterA); break;
+    case 'close': state.edit = null; closeLayer(); render(); break;
+    case 'st-tab': go(k); break;
+    case 'open-st': state.drawer = id; $('#scrim').hidden = false; render(); break;
+    /* faculty */
+    case 'fac-batch': state.fac.g = k; state.fac.sub = !!t.dataset.sub; state.fac.w = null; state.view = 'activity'; render(); break;
+    case 'fac-shine': state.fac.sg = k; state.fac.pick = []; state.view = 'shine'; render(); break;
+    case 'fa-w': state.fac.w = +k; render(); break;
+    case 'fa-st': { const w = state.fac.w || curW(), dk = id + '|' + w, m = M.marks[id].A[w - 1]; const cur = state.fac.draft[dk] || (m && m[0] ? { s: m[0], q: m[1] } : { s: null, q: 0 }); state.fac.draft[dk] = { s: k, q: k === 'on' || k === 'late' ? (cur.q || 1) : 0 }; render(); break; }
+    case 'fa-q': { const w = state.fac.w || curW(), dk = id + '|' + w, m = M.marks[id].A[w - 1]; const cur = state.fac.draft[dk] || (m && m[0] ? { s: m[0], q: m[1] } : { s: 'on', q: 0 }); state.fac.draft[dk] = { s: cur.s === 'on' || cur.s === 'late' ? cur.s : 'on', q: +k }; render(); break; }
+    case 'fa-all': {
+      const F = state.fac, keys = facGroups(state.user), all = [...new Set(keys.concat(F.sub && F.g ? [F.g] : []))], g = F.g && all.includes(F.g) ? F.g : all[0], w = F.w || curW();
+      SQ.groupKids(M, 'T', g).forEach(s => { const m = M.marks[s.id]; const dk = s.id + '|' + w; if (!(m.A[w - 1] && m.A[w - 1][0]) && !F.draft[dk]) F.draft[dk] = m.T[w - 1] === 'E' ? { s: 'E', q: 0 } : { s: 'on', q: 1 }; });
+      render(); break;
+    }
+    case 'fa-save': {
+      const F = state.fac, w = F.w || curW(), keys = facGroups(state.user), all = [...new Set(keys.concat(F.sub && F.g ? [F.g] : []))], g = F.g && all.includes(F.g) ? F.g : all[0];
+      const rows = Object.keys(F.draft).filter(dk => +dk.split('|')[1] === w).map(dk => ({ id: dk.split('|')[0], sent: F.draft[dk].s, q: F.draft[dk].q }));
+      if (!rows.length) { toast('Nothing new to save.'); break; }
+      save('act.save', { w, rows, group: glabel('T', g), sub: !keys.includes(g) }, 'Saved ' + rows.length + ' marks. Points updated.', () => {
+        rows.forEach(r => { M.marks[r.id].A[w - 1] = [r.sent, r.sent === 'on' || r.sent === 'late' ? r.q : 0]; delete F.draft[r.id + '|' + w]; });
+      });
+      break;
+    }
+    case 'sh-w': state.fac.sw = +k; state.fac.pick = []; render(); break;
+    case 'sh-pick': { const p = state.fac.pick; const keys = facGroups(state.user), g = state.fac.sg && keys.includes(state.fac.sg) ? state.fac.sg : keys[0], w = state.fac.sw || curW(), wk = SQ.week(M, w);
+      const given = SQ.groupKids(M, 'T', g).filter(s => (M.bonus || []).some(z => z.id === s.id && z.type === 'shine' && z.date >= wk.start && z.date <= wk.end)).length;
+      if (p.includes(id)) state.fac.pick = p.filter(x => x !== id); else if (p.length + given < 3) p.push(id); else toast('Up to 3 Shine Stars per class each week.');
+      render(); break; }
+    case 'sh-reason': state.fac.reason[id] = k; render(); break;
+    case 'sh-save': {
+      const F = state.fac, keys = facGroups(state.user), g = F.sg && keys.includes(F.sg) ? F.sg : keys[0], w = F.sw || curW(), wk = SQ.week(M, w);
+      let d = SQ.classDate(M, 'T', g, w) || (wk.end < M.today ? wk.end : M.today); if (d > M.today) d = M.today;
+      const items = F.pick.map(x => ({ id: x, type: 'shine', note: F.reason[x] || 'Best effort' }));
+      save('bonus.add', { items, date: d }, items.length + ' Shine Star' + (items.length > 1 ? 's' : '') + ' given! +' + M.P.SH + ' each', () => {
+        items.forEach(it => M.bonus.push({ date: d, id: it.id, type: 'shine', by: state.user, note: it.note })); F.pick = []; confetti();
+      });
+      break;
+    }
+    /* mentor: attendance */
+    case 'att-kind': state.att.kind = k; state.att.g = null; state.att.slot = 0; state.att.draft = null; render(); break;
+    case 'att-w': state.att.w = +k; state.att.draft = null; render(); break;
+    case 'att-slot': state.att.slot = +k; state.att.draft = null; render(); break;
+    case 'att-open': { const p = JSON.parse(k); Object.assign(state.att, { kind: p[0], g: p[1], w: p[2], slot: p[3] || 0, draft: null }); go('attendance'); break; }
+    case 'att-all': Object.values(state.att.draft).forEach(r => { if (r.on) r.p = +k; }); render(); break;
+    case 'at-lesson': { const r = state.att.draft[id]; if (r && r.on) { r.lesson = !r.lesson; render(); } break; }
+    case 'at-ex': { const r = state.att.draft[id]; if (r && !r.on) { r.ex = !r.ex; render(); } break; }
+    case 'att-submit': { const dr = state.att.draft, ids = Object.keys(dr); if (ids.length && ids.every(i => dr[i].on) && !state.att.confirm && !state.att.saved) { state.att.confirm = true; render(); break; } saveAttendance(); break; }
+    case 'att-confirm': saveAttendance(); break;
+    case 'att-cancel': state.att.confirm = false; render(); break;
+    /* mentor: messages */
+    case 'th-open': state.msgOpen = k; state.view = 'messages'; render(); break;
+    case 'qr': { const i = $('#rp-text'); if (i) { i.value = k; i.focus(); } break; }
+    case 'assign': { const who = $('#as-who').value; const m = state.D.messages.find(x => x.id === k); save('msg.assign', { id: k, to: who }, 'Assigned to ' + who + '. They will reply on WhatsApp.', () => { m.status = 'assigned'; m.assignee = who; }); break; }
+    case 'th-close': { const m = state.D.messages.find(x => x.id === k); save('msg.close', { id: k }, 'Closed', () => { m.status = 'closed'; }); break; }
+    case 'leave-ok': { const m = state.D.messages.find(x => x.id === k); save('msg.leave', { id: k }, 'Leave approved', () => { m.approved = true; m.status = 'closed'; m.reply = (m.reply ? m.reply + '\n' : '') + 'Leave approved. The class on ' + m.leave + ' will be marked Excused.'; }); break; }
+    /* mentor: students, canva, habits, results */
+    case 'st-add': state.edit = ''; openLayer(studentForm(null), 'modal wide'); break;
+    case 'st-edit': state.edit = id; state.drawer = null; openLayer(studentForm(SID()[id]), 'modal wide'); break;
+    case 'cv-rn': state.cv.rn = +k; render(); break;
+    case 'cv-set': { const rn = state.cv.rn || curR(); save('canva.set', { id, rn, status: k }, k === 'Approved' ? 'Approved · +' + M.P.CV + ' points' : k ? 'Marked: ask for a clearer photo' : 'Cleared', () => { M.marks[id].C[rn - 1] = k; }); break; }
+    case 'hp-on': { const h = SQ.habit(M, +k); save('habit.plan', { no: h.no, on: !h.on }, (h.on ? 'Switched off: ' : 'Switched on: ') + h.n, () => { h.on = !h.on; }); break; }
+    case 'hp-new': { const h = SQ.habit(M, +k); save('habit.plan', { no: h.no, isNew: !h.isNew }, h.isNew ? 'NEW tag removed from ' + h.n : 'NEW tag shown on ' + h.n, () => { h.isNew = !h.isNew; }); break; }
+    case 'release': { const rn = +k; save('results.release', { rn }, 'Round ' + rn + ' results released. Parents see them at ' + revealText(rn) + '.', () => { if (!M.released.includes(rn)) M.released.push(rn); }); break; }
+    /* reveal */
+    case 'reveal': { const p = JSON.parse(k); const keys = state.role === 'faculty' ? [...new Set(facGroups(state.user).map(groupCls))].filter(Boolean) : SQ.CLASSES; RV = { rn: p[0], cls: p[1], step: 0, classes: keys }; $('#layer').innerHTML = revealHtml(); break; }
+    case 'rv-cls': RV.cls = k; RV.step = 0; $('#layer').innerHTML = revealHtml(); break;
+    case 'rv-next': { const R1 = RV.cls === 'Root 1'; const n = R1 ? 3 : 6; RV.step = RV.step >= n - 1 ? 0 : RV.step + 1; $('#layer').innerHTML = revealHtml(); if ((R1 && RV.step === 2) || (!R1 && RV.step >= 4)) confetti(); break; }
+    case 'rv-close': RV = null; $('#layer').innerHTML = ''; break;
+  }
+});
+document.addEventListener('change', e => {
+  const t = e.target, c = t.dataset.chg; if (!c) return; const M = state.M;
+  if (c === 'fa-g') { state.fac.g = t.value; state.fac.sub = false; render(); }
+  else if (c === 'sh-g') { state.fac.sg = t.value; state.fac.pick = []; render(); }
+  else if (c === 'att-g') { state.att.g = t.value; state.att.draft = null; render(); }
+  else if (c === 'at-on') { const r = state.att.draft[t.dataset.id]; if (r) { r.on = t.checked; if (r.on) r.ex = false; state.att.confirm = false; render(); } }
+  else if (c === 'at-p') { const r = state.att.draft[t.dataset.id]; if (r) { r.p = +t.value; render(); } }
+  else if (c === 'sf') { state.stf[t.dataset.k] = t.value; render(); }
+  else if (c === 'cv-cls') { state.cv.cls = t.value; render(); }
+  else if (c === 'hp-date') { const h = SQ.habit(M, +t.dataset.k); const v = t.value || ''; save('habit.plan', { no: h.no, start: v, on: v ? true : h.on }, v ? h.n + ' starts ' + fmtDay(v) : 'Date removed', () => { h.start = v; if (v) h.on = true; }); }
+  else if (c === 'choose') { const rn = +t.dataset.rn, cls = t.dataset.cls, kind = t.dataset.k, v = t.value; save('results.choose', { rn, cls, kind, id: v }, v ? (kind === 'canva' ? 'Best Canva Board' : 'Mentor’s Choice') + ' · ' + cls + ': ' + SID()[v].name : 'Cleared', () => { const C = state.D.choices = state.D.choices || {}; C[rn] = C[rn] || {}; C[rn][cls] = C[rn][cls] || {}; C[rn][cls][kind] = v; }); }
+});
+document.addEventListener('input', e => {
+  const t = e.target; if (t.dataset.inp === 'sf') { state.stf.q = t.value; const pos = t.selectionStart; render(); const n = $('#sf-q'); if (n) { n.focus(); try { n.setSelectionRange(pos, pos); } catch (x) {} } }
+});
+document.addEventListener('submit', e => {
+  const f = e.target, k = f.dataset.form; if (!k) return; e.preventDefault(); const fd = new FormData(f), M = state.M;
+  if (k === 'login-parent') {
+    const id = String(fd.get('id') || '').trim().toUpperCase(); state.login.id = id;
+    const pin = String(fd.get('pin') || '').trim();
+    if (!id) { state.login.err = 'Enter the Qaaf ID.'; render(); return; }
+    if (!pin) { state.login.err = 'Enter the parent PIN.'; render(); return; }
+    doLogin({ role: 'parent', id, pin });
+  } else if (k === 'login-staff') {
+    const L = state.login;
+    if (!L.names) { const pin = String(fd.get('pin') || '').trim(); if (!pin) { L.err = 'Enter the PIN.'; render(); return; } L.pin = pin; doLogin({ role: L.role, pin }); return; }
+    if (!L.pick) { L.err = 'Choose your name first.'; render(); return; }
+    doLogin({ role: L.role, pin: L.pin, name: L.pick });
+  } else if (k === 'pmsg') {
+    const text = String(fd.get('text') || '').trim(), cat = String(fd.get('cat')), err = $('#pm-err'), s = kidOf();
+    if (!text) { err.textContent = 'Write a short message first.'; err.hidden = false; return; }
+    const leave = cat === 'Leave notice' ? String(fd.get('leave') || '') : '';
+    save('msg.send', { sid: s.id, cat, text, leave }, 'Sent to the mentor.', r => { state.D.messages = state.D.messages || []; state.D.messages.push({ id: r.id, date: M.today, sid: s.id, cat, text, leave, status: 'new' }); });
+  } else if (k === 'reply') {
+    const text = String(fd.get('text') || '').trim(); if (!text) return; const m = state.D.messages.find(x => x.id === f.dataset.id);
+    save('msg.reply', { id: m.id, text }, 'Reply sent', () => { m.reply = m.reply ? m.reply + '\n' + text : text; if (m.status === 'new') m.status = 'closed'; state.msgOpen = m.id; });
+  } else if (k === 'done') {
+    const m = state.D.messages.find(x => x.id === f.dataset.id), note = String(fd.get('note') || '').trim();
+    save('msg.done', { id: m.id, note }, 'Marked as answered. The mentor and the parent can see it.', () => { m.status = 'done'; m.doneBy = state.user; m.tnote = note; });
+  } else if (k === 'bonus') {
+    const type = f.dataset.type, sid = String(fd.get('sid')), note = String(fd.get('note') || '').trim();
+    save('bonus.add', { items: [{ id: sid, type, note }] }, (type === 'mentor' ? 'Appreciation' : 'Activity of the Week') + ' given to ' + firstName(SID()[sid].name) + ' · +' + (type === 'mentor' ? M.P.MA : M.P.AW), () => { M.bonus.push({ date: M.today, id: sid, type, by: state.user, note }); confetti(); });
+  } else if (k === 'student') {
+    const fields = {}; ['id', 'name', 'cls', 'type', 'batch', 'teacher', 'med', 'thg', 'thl', 'dob', 'region', 'fam', 'status', 'notes'].forEach(x => fields[x] = String(fd.get(x) || '').trim());
+    const err = $('#sf-err'); const orig = f.dataset.orig;
+    if (!fields.id || !fields.name) { err.textContent = 'Enter the Qaaf ID and name.'; err.hidden = false; return; }
+    if (fields.type === 'Batch' && !fields.batch) { err.textContent = 'Choose the batch.'; err.hidden = false; return; }
+    if (fields.type === 'Individual' && !fields.teacher) { err.textContent = 'Choose the individual teacher.'; err.hidden = false; return; }
+    api('student.save', { orig, fields }).then(() => { state.edit = null; closeLayer(); toast(orig ? 'Saved' : 'Child added'); boot(); }).catch(x => { err.textContent = x.message; err.hidden = false; });
+  }
+});
+$('#scrim').addEventListener('click', () => { state.edit = null; closeLayer(); render(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { if (RV) { RV = null; $('#layer').innerHTML = ''; } else { state.edit = null; closeLayer(); render(); } } });
+if ('serviceWorker' in navigator && location.protocol === 'https:') { try { navigator.serviceWorker.register('sw.js'); } catch (e) {} }
+render();
+boot();
+})();
+
+</script>
+</body>
+</html>
