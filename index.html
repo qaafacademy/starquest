@@ -404,7 +404,11 @@ select.pct[disabled]{opacity:.4}
 .modal.wide{width:min(680px,calc(100% - 32px))}
 tr.top td:first-child{color:var(--sun-ink);font-weight:900}
 .tag[data-act]{cursor:pointer}
+.team-btn{background:transparent;border-style:dashed;color:var(--muted);font-weight:800}
 .kpi b{overflow-wrap:anywhere}
+.hud{display:block;width:auto;max-width:100%;object-fit:contain;filter:drop-shadow(0 6px 8px rgba(20,33,59,.18))}
+.bubble-row .hud{flex:none}
+.rv-stage .hud{margin:0 auto}
 .plan-row.plan6>.tag:last-child{min-width:100px;text-align:center;justify-self:end}
 @media (max-width:720px){.att-row{grid-template-columns:auto minmax(0,1fr) auto auto;gap:6px 8px}.att-row>span:empty{display:none}.att-row .tri{grid-column:2/-1}.att-row .who-cell small{font-size:11px}}
 
@@ -791,14 +795,8 @@ window.addEventListener('online', () => { flushQueue(); boot(); });
 document.addEventListener('visibilitychange', () => { if (!document.hidden && state.token && Date.now() - state.lastBoot > 5 * 60000) boot(); });
 
 /* ---------- art ---------- */
-function hudhud(w) {
-  const f = [-58, -32, -8, 16, 40].map(a => '<g transform="rotate(' + a + ' 40 34)"><ellipse cx="40" cy="17" rx="5.2" ry="13" fill="#F2B270"/><ellipse cx="40" cy="6.5" rx="4.2" ry="4.6" fill="#25263A"/><ellipse cx="40" cy="11.5" rx="4.4" ry="1.6" fill="#FFFFFF"/></g>').join('');
-  return '<svg viewBox="0 0 124 112" width="' + (w || 64) + '" height="' + Math.round((w || 64) * 112 / 124) + '" aria-hidden="true">' +
-    '<path d="M88 70 L120 86 L114 96 L84 82 Z" fill="#25263A"/><path d="M96 74 L104 78 M104 82 L112 86" stroke="#FFFFFF" stroke-width="3"/>' + f +
-    '<ellipse cx="68" cy="70" rx="31" ry="23" fill="#E9A15B"/><path d="M52 64 Q74 50 96 66 Q80 86 56 80 Z" fill="#25263A"/><path d="M60 64 L66 79 M70 60 L76 80 M80 61 L85 78" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round"/>' +
-    '<circle cx="41" cy="48" r="17" fill="#E9A15B"/><path d="M26 50 Q12 54 2 62 Q15 52 27 54 Z" fill="#4A3A33"/><circle cx="37" cy="45" r="4.6" fill="#FFFFFF"/><circle cx="36.4" cy="45.4" r="2.6" fill="#1D1D2B"/><circle cx="35.6" cy="44.4" r=".9" fill="#FFFFFF"/>' +
-    '<circle cx="46" cy="54" r="3.6" fill="#FF8C6B" opacity=".7"/><path d="M62 91 L60 104 M60 104 L55 106 M60 104 L64 107 M74 91 L74 104 M74 104 L69 106 M74 104 L78 107" stroke="#4A3A33" stroke-width="2.6" stroke-linecap="round" fill="none"/></svg>';
-}
+/* Hudhud, the Star Quest mascot. Poses: front, side, back, fly, branch, face */
+function hudhud(h, pose) { return '<img class="hud" src="hud-' + (pose || 'front') + '.webp" style="height:' + (h || 90) + 'px" alt="" aria-hidden="true" decoding="async">'; }
 function treeSvg(ph, w) {
   const W = w || 120; const cs = [[], [[80, 70, 16], [66, 80, 12], [94, 80, 12]], [[80, 60, 20], [62, 74, 15], [98, 74, 15], [80, 82, 14]], [[80, 50, 24], [58, 66, 18], [102, 66, 18], [68, 84, 15], [92, 84, 15]], [[80, 46, 26], [56, 62, 20], [104, 62, 20], [64, 84, 17], [96, 84, 17], [80, 74, 18]]][ph];
   const th = [18, 30, 42, 52, 58][ph], tw = [4, 7, 9, 11, 12][ph];
@@ -880,24 +878,19 @@ function revealText(rn) { const r = SQ.round(state.M, rn); return fmtDay(r.revea
    =================================================================== */
 function vLogin() {
   const L = state.login;
-  let h = '<div class="login"><section class="hero"><span class="wiggle" style="display:inline-block">' + hudhud(108) + '</span><div style="display:grid;gap:8px;min-width:0;flex:1"><h1>Qaaf <span>Star Quest</span></h1><p>Season 1 · Learn, shine and collect stars every day!</p></div></section>';
-  if (!L.role) {
-    h += '<div class="roles">' + [
-      ['parent', '👨‍👩‍👧', 'Parent', 'See your child’s stars, check in habits and message the mentor.', 'var(--sun-soft)'],
-      ['faculty', '👩‍🏫', 'Faculty', 'Mark activity work, give Shine Stars and play the Reveal Show.', 'var(--sky-soft)'],
-      ['mentor', '🧑‍💼', 'Mentor', 'Attendance, messages, students, habits and results.', 'var(--brand-soft)'],
-      ['admin', '🛠️', 'Admin', 'Academy overview, season and activity log.', 'var(--grape-soft)']].map(r => '<button class="role-card" data-act="pick-role" data-k="' + r[0] + '"><span class="ic" style="background:' + r[4] + '">' + r[1] + '</span><h3>' + r[2] + '</h3><p>' + r[3] + '</p></button>').join('') + '</div>';
-  } else if (L.role === 'parent') {
-    h += '<form class="login-box" data-form="login-parent" novalidate><div class="row between"><h2 style="font-size:22px">Parent sign in</h2><button type="button" class="link" data-act="pick-role" data-k="">Back</button></div>' +
+  let h = '<div class="login"><section class="hero"><span class="wiggle" style="display:inline-block">' + hudhud(150, 'front') + '</span><div style="display:grid;gap:8px;min-width:0;flex:1"><h1>Qaaf <span>Star Quest</span></h1><p>Season 1 · Learn, shine and collect stars every day!</p></div></section>';
+  if (L.role !== 'staff') {
+    h += '<form class="login-box" data-form="login-parent" novalidate><div class="row between"><h2 style="font-size:22px">👨‍👩‍👧 Parent sign in</h2></div>' +
       '<div class="field"><label for="lg-id">Qaaf ID</label><input class="inp" id="lg-id" name="id" placeholder="QF26129" autocomplete="username" autocapitalize="characters" value="' + esc(L.id) + '"></div>' +
       '<div class="field"><label for="lg-ppin">Parent PIN</label><input class="inp" id="lg-ppin" name="pin" type="password" inputmode="numeric" maxlength="8" autocomplete="current-password" placeholder="4 digits"></div>' +
       (L.err ? '<p class="err">' + esc(L.err) + '</p>' : '') +
       '<button class="btn pri block" type="submit"' + (L.busy ? ' disabled' : '') + '>' + (L.busy ? 'Signing in…' : 'Sign in') + '</button>' +
-      '<p class="small muted">The mentor has shared the parent PIN on WhatsApp. Brothers and sisters: sign in with any one child and switch inside the app.</p></form>';
+      '<p class="small muted">The mentor has shared the parent PIN on WhatsApp. Brothers and sisters: sign in with any one child and switch inside the app.</p></form>' +
+      '<button class="btn block team-btn" data-act="pick-role" data-k="staff">🧑‍🏫 Qaaf team sign in</button>';
   } else {
-    const label = { faculty: 'Faculty', mentor: 'Mentor', admin: 'Admin' }[L.role];
+    const label = { faculty: 'Faculty', mentor: 'Mentor', admin: 'Admin' }[L.staffRole] || 'Qaaf team';
     h += '<form class="login-box" data-form="login-staff" novalidate><div class="row between"><h2 style="font-size:22px">' + label + ' sign in</h2><button type="button" class="link" data-act="pick-role" data-k="">Back</button></div>';
-    if (!L.names) h += '<div class="field"><label for="lg-pin">PIN</label><input class="inp" id="lg-pin" name="pin" type="password" inputmode="numeric" maxlength="8" autocomplete="current-password"></div>';
+    if (!L.names) h += '<div class="field"><label for="lg-pin">Your PIN</label><input class="inp" id="lg-pin" name="pin" type="password" inputmode="numeric" maxlength="8" autocomplete="current-password"></div>';
     else h += '<div class="field"><span class="lbl">Who are you?</span><div class="namegrid">' + L.names.map(n => '<button type="button" data-act="pick-name" data-k="' + esc(n) + '" aria-pressed="' + (L.pick === n) + '">' + av({ id: n, name: n }, 28) + esc(n) + '</button>').join('') + '</div></div>';
     h += (L.err ? '<p class="err">' + esc(L.err) + '</p>' : '') + '<button class="btn pri block" type="submit"' + (L.busy ? ' disabled' : '') + '>' + (L.busy ? 'Please wait…' : L.names ? 'Continue' : 'Sign in') + '</button><p class="small muted">Everything you save is recorded with your name.</p></form>';
   }
@@ -907,7 +900,7 @@ async function doLogin(body) {
   const L = state.login; L.busy = true; L.err = ''; render();
   try {
     const r = await api('login', body);
-    if (r.names) { L.names = r.names; L.busy = false; if (r.names.length === 1) { L.pick = r.names[0]; } render(); return; }
+    if (r.names) { L.names = r.names; L.staffRole = r.role; L.busy = false; if (r.names.length === 1) { L.pick = r.names[0]; } render(); return; }
     state.token = r.token; state.role = r.role; state.user = r.user; store.set('token', r.token); store.set('role', r.role); store.set('user', r.user);
     state.view = null; state.login = { role: null, err: '', names: null, pin: '', pick: null, id: '', busy: false };
     await boot();
@@ -932,7 +925,7 @@ function kidHome(s) {
       (rk.inTop ? 'You are <b>#' + rk.rank + '</b> in ' + esc(s.cls) + '! Keep shining.' : rk.need ? '<b>' + rk.need + ' points</b> to reach the Top ' + rk.top + ' in ' + esc(s.cls) : 'Keep going to reach the Top ' + (rk.top || '') + '!');
   const nextB = SQ.BANDS[SQ.BANDS.indexOf(band) + 1]; const needB = nextB && sc.max ? Math.max(1, Math.ceil(M.bands[nextB] / 100 * sc.max - sc.total)) : 0;
   const bubble = nw.length ? 'New habit: <b>' + nw.map(no => { const h = SQ.habit(M, no); return h.e + ' ' + esc(h.n); }).join(', ') + '</b>. Learn its dua with your family!' : 'Every routine you do earns a star. Let’s go!';
-  let x = '<div class="bubble-row"><span class="wiggle" style="display:inline-block">' + hudhud(66) + '</span><div class="bubble">Assalamu alaikum, ' + esc(firstName(s.name)) + '! ' + bubble + '</div></div>';
+  let x = '<div class="bubble-row"><span class="wiggle" style="display:inline-block">' + hudhud(104, 'front') + '</span><div class="bubble">Assalamu alaikum, ' + esc(firstName(s.name)) + '! ' + bubble + '</div></div>';
   x += installTip();
   x += '<section class="k-card stars-card"><div class="row between"><div><span class="small muted" style="font-weight:800">MY STARS</span><div class="big-num num">⭐ ' + st + '</div></div><div style="text-align:right"><span class="tag grape">Level ' + (li + 1) + '</span><div style="font-family:var(--font-display);font-weight:800;font-size:20px">' + L.n + '</div></div></div>' +
     (N ? '<div class="bar sun"><span style="width:' + Math.min(100, (st - L.min) / (N.min - L.min) * 100) + '%"></span></div><p class="small" style="font-weight:800">' + (N.min - st) + ' stars to <b>' + N.n + '</b></p>' : '<p class="small" style="font-weight:800">Top level reached! 👑</p>') +
@@ -974,7 +967,7 @@ function kidCheckin(s) {
   const M = state.M, d = state.ckDate, log = hlogOf(s), done = log[d] || [];
   const act = SQ.activeOn(M, d), nw = newHabits(d);
   const n = act.filter(i => done.includes(i)).length;
-  let x = '<div class="bubble-row">' + hudhud(58) + '<div class="bubble">' + (act.length && n === act.length ? 'All done! Masha Allah! 🎉' : 'Tap each routine you did <b>fully</b>, with the dua.') + '</div></div>';
+  let x = '<div class="bubble-row">' + (act.length && n === act.length ? hudhud(64, 'fly') : hudhud(96, 'branch')) + '<div class="bubble">' + (act.length && n === act.length ? 'All done! Masha Allah! 🎉' : 'Tap each routine you did <b>fully</b>, with the dua.') + '</div></div>';
   if (state.offline) x += '<div class="hint warn">You are offline. Your ticks are saved on this phone and will be sent when you are back online.</div>';
   x += '<div class="dates">' + [0, 1, 2].map(i => { const dd = SQ.addDays(M.today, -i); if (dd < SQ.LAUNCH) return ''; return '<button data-act="ck-date" data-k="' + dd + '" aria-pressed="' + (dd === d) + '">' + (i === 0 ? 'Today' : i === 1 ? 'Yesterday' : DOW[SQ.D(dd).getUTCDay()]) + '<small>' + fmt(dd) + '</small></button>'; }).join('') + '</div>';
   if (!act.length) return x + '<section class="k-card"><p style="font-weight:800">No routines are switched on yet.</p></section>';
@@ -1015,11 +1008,11 @@ function cupHtml(cup) {
 }
 function kidBoard(s) {
   const D = state.D, rounds = Object.keys(D.boards || {}).map(Number).sort((a, b) => b - a);
-  if (!rounds.length) return '<section class="k-card"><h3>Leaderboard</h3><p style="font-weight:800">The leaderboard opens when Round 1 starts on ' + fmtDay(SQ.round(state.M, 1).start) + '.</p></section>';
+  if (!rounds.length) return '<section class="k-card"><div class="row" style="flex-wrap:nowrap">' + hudhud(80, 'side') + '<h3>Leaderboard</h3></div><p style="font-weight:800">The leaderboard opens when Round 1 starts on ' + fmtDay(SQ.round(state.M, 1).start) + '.</p></section>';
   const rn = rounds.includes(state.lbRound) ? state.lbRound : rounds[0], B = D.boards[rn], tab = state.lbTab;
   let x = '<div class="row between"><div class="seg" role="group">' + [['class', 'My class'], ['academy', 'Academy'], ['cups', 'Class Cup']].map(t => '<button data-act="lb-tab" data-k="' + t[0] + '" aria-pressed="' + (tab === t[0]) + '">' + t[1] + '</button>').join('') + '</div>' +
     (rounds.length > 1 ? '<div class="seg" role="group">' + rounds.slice(0, 3).map(r => '<button data-act="lb-round" data-k="' + r + '" aria-pressed="' + (rn === r) + '">Round ' + r + (r === SQ.curRound(state.M) && !SQ.roundEnded(state.M, r) ? ' · live' : '') + '</button>').join('') + '</div>' : '') + '</div>';
-  if (B.mystery) x += '<div class="hint grape">🤫 Mystery Mode: the Top 3 are hidden until the results open on ' + esc(revealText(rn)) + '.</div>';
+  if (B.mystery) x += '<div class="hint grape row" style="flex-wrap:nowrap;align-items:center">' + hudhud(64, 'back') + '<span>🤫 <b>Mystery Mode!</b> Hudhud is keeping the Top 3 a secret until ' + esc(revealText(rn)) + '.</span></div>';
   if (tab === 'class') {
     x += '<section class="k-card"><div class="row between"><h3>' + esc(s.cls) + ' · Round ' + rn + '</h3><span class="tag info">' + (B.open ? 'Final' : 'Live') + '</span></div>' + boardList(B, s.cls) + '</section>';
     const sc = SQ.score(state.M, s, rn);
@@ -1488,7 +1481,7 @@ function revealHtml() {
   const r = SQ.round(M, rn); let stage = '';
   const kid = a => ({ id: a.id, name: nameCase(a.name) });
   if (!L.length) stage = '<div class="rv-title">' + esc(c) + '</div><div class="rv-sub">No champions for this class this round.</div>';
-  else if (st === 'intro') stage = '<div class="rv-sub">ROUND ' + rn + ' · ' + fmt(r.start).toUpperCase() + ' – ' + fmt(r.end).toUpperCase() + '</div><div class="rv-title">' + esc(c) + ' Champions</div>' + hudhud(130) + '<div class="rv-sub">Who earned the most points this round?</div>';
+  else if (st === 'intro') stage = '<div class="rv-sub">ROUND ' + rn + ' · ' + fmt(r.start).toUpperCase() + ' – ' + fmt(r.end).toUpperCase() + '</div><div class="rv-title">' + esc(c) + ' Champions</div>' + hudhud(170, 'fly') + '<div class="rv-sub">Who earned the most points this round?</div>';
   else if (st === 'drum') stage = '<div class="drum wiggle">🥁</div><div class="rv-title">Drum roll…</div><div class="rv-sub">' + (R1 ? 'Our Round Champions are…' : 'In third place…') + '</div>';
   else if (st === 'all') stage = '<div class="rv-title">Round Champions!</div><div class="rv-many">' + L.map(a => '<div class="rv-card pop">' + av(kid(a), 76) + '<div class="nm">' + esc(kid(a).name) + '</div><span class="place" style="background:var(--gold)">Champion</span></div>').join('') + '</div>';
   else if (st === 'done') stage = '<div class="rv-title">Masha Allah! 🎉</div><div class="rv-many">' + L.slice().reverse().map(a => '<div class="rv-card">' + av(kid(a), 60) + '<div class="nm">' + esc(shortName(kid(a).name)) + '</div><span class="place" style="background:var(--' + ['', 'gold', 'silver', 'bronze'][a.place] + ')">' + ['', '1st', '2nd', '3rd'][a.place] + '</span></div>').join('') + '</div><div class="rv-sub">Posters are ready to share on WhatsApp.</div>';
@@ -1502,7 +1495,7 @@ function revealHtml() {
 function render() {
   let h = '';
   if (!state.token) h = vLogin();
-  else if (!state.D) h = '<div class="login"><section class="hero"><span class="wiggle" style="display:inline-block">' + hudhud(96) + '</span><div><h1>Qaaf <span>Star Quest</span></h1><p>' + (state.loading ? 'Loading your stars…' : 'Could not load. Check your internet.') + '</p>' + (state.loading ? '' : '<div class="row"><button class="btn pri" data-act="retry">Try again</button><button class="btn" data-act="logout">Sign out</button></div>') + '</div></section></div>';
+  else if (!state.D) h = '<div class="login"><section class="hero"><span class="wiggle" style="display:inline-block">' + hudhud(140, 'side') + '</span><div><h1>Qaaf <span>Star Quest</span></h1><p>' + (state.loading ? 'Loading your stars…' : 'Could not load. Check your internet.') + '</p>' + (state.loading ? '' : '<div class="row"><button class="btn pri" data-act="retry">Try again</button><button class="btn" data-act="logout">Sign out</button></div>') + '</div></section></div>';
   else if (state.role === 'parent') h = vParent();
   else if (state.role === 'faculty') h = vFaculty();
   else if (state.role === 'mentor') h = vMentor();
@@ -1644,9 +1637,9 @@ document.addEventListener('submit', e => {
     doLogin({ role: 'parent', id, pin });
   } else if (k === 'login-staff') {
     const L = state.login;
-    if (!L.names) { const pin = String(fd.get('pin') || '').trim(); if (!pin) { L.err = 'Enter the PIN.'; render(); return; } L.pin = pin; doLogin({ role: L.role, pin }); return; }
+    if (!L.names) { const pin = String(fd.get('pin') || '').trim(); if (!pin) { L.err = 'Enter your PIN.'; render(); return; } L.pin = pin; doLogin({ role: 'staff', pin }); return; }
     if (!L.pick) { L.err = 'Choose your name first.'; render(); return; }
-    doLogin({ role: L.role, pin: L.pin, name: L.pick });
+    doLogin({ role: L.staffRole, pin: L.pin, name: L.pick });
   } else if (k === 'pmsg') {
     const text = String(fd.get('text') || '').trim(), cat = String(fd.get('cat')), err = $('#pm-err'), s = kidOf();
     if (!text) { err.textContent = 'Write a short message first.'; err.hidden = false; return; }

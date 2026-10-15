@@ -4,7 +4,7 @@
  "start_url": "./",
  "scope": "./",
  "display": "standalone",
- "background_color": "#F1F6FB",
+ "background_color": "#FFF0C7",
  "theme_color": "#0B9B6A",
  "description": "Stars, habits and leaderboards for Qaaf Kids",
  "icons": [
