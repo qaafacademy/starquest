@@ -4,7 +4,19 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Qaaf Star Quest</title>
-<meta name="description" content="Qaaf Academy Star Quest: stars, habits and leaderboards for Qaaf Kids.">
+<meta name="description" content="Stars, habits and rewards for Qaaf Kids. Sign in with your child’s Qaaf ID.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Qaaf Academy">
+<meta property="og:title" content="Qaaf Star Quest">
+<meta property="og:description" content="Stars, habits and rewards for Qaaf Kids. Sign in with your child’s Qaaf ID.">
+<meta property="og:url" content="https://qaafacademy.github.io/starquest/">
+<meta property="og:image" content="https://qaafacademy.github.io/starquest/share.jpg">
+<meta property="og:image:secure_url" content="https://qaafacademy.github.io/starquest/share.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Hudhud flying over the words Qaaf Star Quest">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#0B9B6A">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -409,6 +421,17 @@ tr.top td:first-child{color:var(--sun-ink);font-weight:900}
 .hud{display:block;width:auto;max-width:100%;object-fit:contain;filter:drop-shadow(0 6px 8px rgba(20,33,59,.18))}
 .bubble-row .hud{flex:none}
 .rv-stage .hud{margin:0 auto}
+.hb-list{display:grid;gap:10px}
+.hb-row{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px;border:1.5px solid var(--line);border-radius:16px;background:var(--surface);text-align:left;width:100%;font:inherit;color:inherit}
+.hb-row.live{border-color:var(--sun);background:var(--sun-soft)}
+.hb-row .em{font-size:28px;text-align:center}
+.hb-row b{display:block;font-weight:900;line-height:1.2}
+.hb-row small{display:block;font-size:12px;color:var(--muted);font-weight:700;margin-top:2px}
+.hb-bar{position:relative;height:9px;border-radius:9px;background:var(--surface-2);margin-top:6px;overflow:hidden}
+.hb-bar i{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,var(--sun),var(--brand));border-radius:9px}
+.hb-bar u{position:absolute;top:0;bottom:0;width:2px;background:var(--surface)}
+.tiers{display:flex;gap:2px;font-size:24px}
+.tiers span.off{filter:grayscale(1);opacity:.3}
 .plan-row.plan6>.tag:last-child{min-width:100px;text-align:center;justify-self:end}
 @media (max-width:720px){.att-row{grid-template-columns:auto minmax(0,1fr) auto auto;gap:6px 8px}.att-row>span:empty{display:none}.att-row .tri{grid-column:2/-1}.att-row .who-cell small{font-size:11px}}
 
@@ -569,6 +592,13 @@ var SQ = (function () {
     return L[0] || null;
   }
   function habit(M, no) { for (var i = 0; i < M.habits.length; i++) if (M.habits[i].no === no) return M.habits[i]; return null; }
+  /* habit badges: settings in M.badge (from the Settings tab) */
+  var BADGE_DEF = { from: 5, window: 14, levels: [{ k: 'bronze', days: 7, stars: 10 }, { k: 'silver', days: 10, stars: 20 }, { k: 'gold', days: 13, stars: 30 }] };
+  function badgeCfg(M) { return M.badge || BADGE_DEF; }
+  function badgeLevels(M) { return badgeCfg(M).levels; }
+  function badgeHabits(M) { var c = badgeCfg(M); return M.habits.filter(function (h) { return h.on && h.start && h.no >= c.from; }); }
+  function badgeWindow(M, h) { return { start: h.start, end: addDays(h.start, badgeCfg(M).window - 1) }; }
+  var BADGE_N = { bronze: 'Bronze', silver: 'Silver', gold: 'Gold' }, BADGE_E = { bronze: '🥉', silver: '🥈', gold: '🥇' };
   /* log: { 'yyyy-mm-dd': [routine numbers] } */
   function habitInfo(M, log, today) {
     today = today || M.today; log = log || {};
@@ -581,13 +611,25 @@ var SQ = (function () {
     var ok = function (d) { var a = act(d); var x = log[d] || []; return a.length > 0 && x.length >= Math.ceil(a.length * share); };
     var cur = 0, d = ok(today) ? today : addDays(today, -1);
     while (d >= LAUNCH && ok(d)) { cur++; d = addDays(d, -1); }
-    var mastery = [];
-    M.habits.forEach(function (h) {
-      var run = 0, got = null;
-      for (var x = days.length ? days[0] : today; x <= today; x = addDays(x, 1)) {
-        if ((log[x] || []).indexOf(h.no) >= 0) { run++; if (run >= 7 && !got) got = x; } else run = 0;
+    /* Bronze / Silver / Gold: days in a row. The streak must START inside the routine's own two weeks,
+       but it may carry on after them. Only the highest badge counts for stars (each step adds the difference). */
+    var mastery = [], progress = {}, yday = addDays(today, -1);
+    badgeHabits(M).forEach(function (h) {
+      var win = badgeWindow(M, h), runs = [], run = null;
+      for (var x = win.start; x <= today; x = addDays(x, 1)) {
+        if ((log[x] || []).indexOf(h.no) >= 0) {
+          if (!run) { if (x > win.end) break; run = { s: x, n: 0 }; runs.push(run); }
+          run.n++;
+        } else { run = null; if (x > win.end) break; }
       }
-      if (got) mastery.push({ no: h.no, date: got });
+      var best = 0, cur = 0, prev = 0;
+      runs.forEach(function (r) { if (r.n > best) best = r.n; if (addDays(r.s, r.n - 1) >= yday) cur = r.n; });
+      badgeLevels(M).forEach(function (L) {
+        var first = null;
+        runs.forEach(function (r) { if (r.n >= L.days) { var d = addDays(r.s, L.days - 1); if (!first || d < first) first = d; } });
+        if (first) { mastery.push({ no: h.no, k: L.k, date: first, stars: L.stars - prev }); prev = L.stars; }
+      });
+      progress[h.no] = { cur: cur, best: best, start: win.start, end: win.end, open: today >= win.start && (today <= win.end || cur > 0) };
     });
     var weekly = [], prevAll = false;
     for (var w = LAUNCH; addDays(w, 6) < today; w = addDays(w, 7)) {
@@ -601,13 +643,14 @@ var SQ = (function () {
       longest[r.n] = best;
     });
     var checkins7 = 0; for (var k = 1; k <= 7; k++) if (log[addDays(today, -k)] && log[addDays(today, -k)].length) checkins7++;
-    return { stars: stars, cur: cur, mastery: mastery, weekly: weekly, longest: longest, checkins7: checkins7, lastCheck: days.length ? days[days.length - 1] : null, today: !!(log[today] && log[today].length) };
+    return { stars: stars, cur: cur, mastery: mastery, progress: progress, weekly: weekly, longest: longest, checkins7: checkins7, lastCheck: days.length ? days[days.length - 1] : null, today: !!(log[today] && log[today].length) };
   }
   var WEEKLY = [{ k: 'streak', n: '7-Day Streak Star', e: '🔥' }, { k: 'consist', n: 'Consistency Champion', e: '🏅' }];
   function starsOf(M, s, hs) {
     var t = 0; M.rounds.forEach(function (r) { if (r.start <= M.today) t += score(M, s, r.n).total; });
     hs = hs || { stars: 0, mastery: [], weekly: [] };
-    return Math.round(t + hs.stars + hs.mastery.length * M.stars.mastery + hs.weekly.length * M.stars.weekly + M.stars.welcome);
+    var bs = (hs.mastery || []).reduce(function (a, m) { return a + (m.stars || 0); }, 0);
+    return Math.round(t + hs.stars + bs + hs.weekly.length * M.stars.weekly + M.stars.welcome);
   }
   function levelOf(M, st) { var i = 0; M.levels.forEach(function (l, j) { if (st >= l.min) i = j; }); return i; }
 
@@ -672,7 +715,7 @@ var SQ = (function () {
     groupOf: groupOf, groupKids: groupKids, groupInfo: groupInfo, groupLabel: groupLabel, classDate: classDate, teacherOf: teacherOf, groupsFor: groupsFor,
     batchInfo: batchInfo, thInfo: thInfo, bandOf: bandOf, bonusPts: bonusPts, bonusOf: bonusOf,
     score: score, rankList: rankList, rankOf: rankOf, topN: topN, classCup: classCup,
-    activeOn: activeOn, nextRoutine: nextRoutine, habit: habit, habitInfo: habitInfo, starsOf: starsOf, levelOf: levelOf,
+    activeOn: activeOn, nextRoutine: nextRoutine, habit: habit, habitInfo: habitInfo, badgeCfg: badgeCfg, badgeHabits: badgeHabits, badgeWindow: badgeWindow, BADGE_N: BADGE_N, BADGE_E: BADGE_E, starsOf: starsOf, levelOf: levelOf,
     computeAwards: computeAwards, unmarked: unmarked, unmarkedList: unmarkedList, activityToMark: activityToMark
   };
 })();
@@ -858,7 +901,7 @@ function openLayer(html, kind) { $('#layer').innerHTML = '<div class="' + (kind 
 function closeLayer() { $('#layer').innerHTML = ''; $('#scrim').hidden = true; state.drawer = null; RV = null; }
 function duaHtml(h) {
   return '<div class="row between"><h2 style="font-size:22px">' + h.e + ' ' + esc(h.n) + '</h2><button class="x" data-act="close" aria-label="Close">×</button></div>' +
-    '<div class="hint sun">🏅 Badge: <b>' + esc(h.b) + '</b> · do it 7 days in a row</div><p class="small muted" style="font-weight:800">THE DUA</p>' +
+    '<div class="hint sun">🏅 Badge: <b>' + esc(h.b) + '</b>' + (h.no >= SQ.badgeCfg(state.M).from ? ' · days in a row: ' + SQ.badgeCfg(state.M).levels.map(l => SQ.BADGE_E[l.k] + ' ' + l.days).join(' · ') : '') + '</div><p class="small muted" style="font-weight:800">THE DUA</p>' +
     (h.ar ? '<p class="dua-ar" lang="ar" dir="rtl">' + esc(h.ar) + '</p>' : '') +
     '<p style="font-weight:800;font-size:17px">' + esc(h.tr) + '</p><p class="muted" style="font-weight:700">' + esc(h.t) + '</p>' + (h.p ? '<div class="hint ok">💬 “' + esc(h.p) + '”</div>' : '');
 }
@@ -981,12 +1024,15 @@ function kidCheckin(s) {
 function toggleHabit(s, no, all) {
   const D = state.D, d = state.ckDate; D.hlog = D.hlog || {}; const log = D.hlog[s.id] = D.hlog[s.id] || {};
   const act = SQ.activeOn(state.M, d); const before = (log[d] || []).slice(); const wasAll = act.every(n => before.includes(n));
+  const had = hsOf(s).mastery.map(m => m.no + m.k);
   let now = all ? act.slice() : (before.includes(no) ? before.filter(x => x !== no) : before.concat(no));
   now = now.filter(n => act.includes(n)).sort((a, b) => a - b);
   log[d] = now; store.set('data_parent', D); queueHabit(s.id, d, now);
   const isAll = act.length && act.every(n => now.includes(n));
   render();
-  if (isAll && !wasAll) { confetti(); toast('All done! +' + (act.length * state.M.stars.habit + state.M.stars.allDone) + ' ⭐ Masha Allah!'); }
+  const got = hsOf(s).mastery.filter(m => !had.includes(m.no + m.k)).pop();
+  if (got) { const h = SQ.habit(state.M, got.no); confetti(); toast(SQ.BADGE_E[got.k] + ' ' + SQ.BADGE_N[got.k] + ' badge! ' + h.e + ' ' + h.n + ' +' + got.stars + ' ⭐ Masha Allah!'); }
+  else if (isAll && !wasAll) { confetti(); toast('All done! +' + (act.length * state.M.stars.habit + state.M.stars.allDone) + ' ⭐ Masha Allah!'); }
   else if (!all) { const h = SQ.habit(state.M, no); toast(now.includes(no) ? '+' + state.M.stars.habit + ' ⭐ ' + h.n : 'Removed'); }
 }
 function boardList(B, cls, opt) {
@@ -1021,10 +1067,31 @@ function kidBoard(s) {
   else x += '<section class="k-card">' + cupHtml(B.cup) + '</section>';
   return x;
 }
+/* habit badges: Bronze / Silver / Gold inside each routine's own two weeks */
+function badgeTiers(hs, no) { return (hs.mastery || []).filter(m => m.no === no).map(m => m.k); }
+function badgeLine(M, h, hs) {
+  const L = SQ.badgeCfg(M).levels, p = (hs.progress || {})[h.no] || { cur: 0, best: 0 }, w = SQ.badgeWindow(M, h), got = badgeTiers(hs, h.no);
+  const nx = L.find(l => !got.includes(l.k));
+  if (M.today < w.start) return 'Starts ' + fmt(w.start) + ' · start your streak in its first two weeks';
+  if (!nx) return 'Gold earned! Masha Allah';
+  if (p.cur) return '🔥 ' + p.cur + ' day' + (p.cur > 1 ? 's' : '') + ' in a row · ' + (nx.days - p.cur) + ' more for ' + SQ.BADGE_N[nx.k];
+  if (M.today <= w.end) return 'Start a streak before ' + fmt(w.end) + ' · ' + nx.days + ' days in a row for ' + SQ.BADGE_N[nx.k];
+  return 'Finished · best streak ' + p.best + ' day' + (p.best === 1 ? '' : 's');
+}
+function habitBadgeRows(M, hs) {
+  const L = SQ.badgeCfg(M).levels, top = L[L.length - 1].days;
+  return '<div class="hb-list">' + SQ.badgeHabits(M).map(h => {
+    const p = (hs.progress || {})[h.no] || { cur: 0, best: 0 }, got = badgeTiers(hs, h.no), later = M.today < h.start, fill = got.length === L.length ? top : p.cur;
+    return '<button class="hb-row' + (p.open && got.length < L.length ? ' live' : '') + '" data-act="dua" data-k="' + h.no + '"><span class="em">' + h.e + '</span><div style="min-width:0"><b>' + esc(h.b) + '</b><small>' + esc(badgeLine(M, h, hs)) + '</small>' +
+      (later ? '' : '<div class="hb-bar" aria-hidden="true"><i style="width:' + Math.min(100, Math.round(fill / top * 100)) + '%"></i>' + L.slice(0, -1).map(l => '<u style="left:' + Math.round(l.days / top * 100) + '%"></u>').join('') + '</div>') +
+      '</div><div class="tiers" aria-label="' + (got.length ? got.map(k => SQ.BADGE_N[k]).join(', ') + ' earned' : 'No badge yet') + '">' + L.map(l => '<span class="' + (got.includes(l.k) ? '' : 'off') + '">' + SQ.BADGE_E[l.k] + '</span>').join('') + '</div></button>';
+  }).join('') + '</div>';
+}
 function kidBadges(s) {
   const M = state.M, hs = hsOf(s), li = SQ.levelOf(M, SQ.starsOf(M, s, hs)), aw = myAwards(s), act = SQ.activeOn(M, M.today);
   let x = '<section class="k-card"><h3>My awards</h3>' + (aw.length ? '<div class="awards-strip">' + aw.map((a, i) => '<button data-act="poster" data-i="' + i + '">' + poster(a) + '</button>').join('') + '</div>' : '<p class="muted" style="font-weight:700">No award posters yet. Winners are revealed every second Saturday at 7 PM!</p>') + '</section>';
-  x += '<section class="k-card"><h3>Routine badges</h3><p class="small muted" style="font-weight:700">Do a routine 7 days in a row to earn its badge.</p><div class="badges">' + M.habits.filter(h => h.on || hs.mastery.some(z => z.no === h.no)).map(h => { const m = hs.mastery.find(z => z.no === h.no); const later = !act.includes(h.no); return '<button class="bdg' + (m ? '' : ' locked') + '" data-act="dua" data-k="' + h.no + '"><span class="disc">' + h.e + '</span><b>' + esc(h.b) + '</b><small>' + (m ? 'Earned ' + fmt(m.date) : later ? (h.start ? 'Starts ' + fmt(h.start) : 'Coming later') : 'Keep going') + '</small></button>'; }).join('') + '</div></section>';
+  const L = SQ.badgeCfg(M).levels;
+  x += '<section class="k-card"><h3>Habit badges</h3><p class="small muted" style="font-weight:700">Do a new routine every day without a break. Start your streak in its first two weeks: ' + L.map(l => SQ.BADGE_E[l.k] + ' ' + l.days + ' days in a row').join(' · ') + '. Up to ' + L[L.length - 1].stars + ' ⭐ for Gold.</p>' + habitBadgeRows(M, hs) + '</section>';
   x += '<section class="k-card"><h3>Weekly awards</h3><div class="badges">' + SQ.WEEKLY.map(w => { const c = hs.weekly.filter(z => z.k === w.k).length; return '<div class="bdg' + (c ? '' : ' locked') + '"><span class="disc">' + w.e + '</span><b>' + w.n + '</b><small>' + (c ? '× ' + c : w.k === 'streak' ? 'All routines, 7 days' : 'Two perfect weeks in a row') + '</small></div>'; }).join('') + '</div></section>';
   x += '<section class="k-card"><h3>Star levels</h3><div class="levels">' + M.levels.map((l, i) => '<div class="lvl-row ' + (i < li ? 'done' : i === li ? 'cur' : 'next') + '"><span>' + (i < li ? '✅' : i === li ? '⭐' : '🔒') + '</span><span class="grow">Level ' + (i + 1) + ' · ' + l.n + '</span><span class="num">' + l.min + '</span></div>').join('') + '</div></section>';
   return x;
@@ -1397,7 +1464,9 @@ function mentorHabits() {
   const rate = avg(ACTIVE().map(s => ((hs[s.id] || { checkins7: 0 }).checkins7) / 7));
   let b = '<div class="kpis">' + kpi('Active today', act.length, 'routines in the check-in') + kpi('NEW tag on', M.habits.filter(h => h.isNew).map(h => h.e + ' ' + h.n).join(', ') || '—', 'you choose') + kpi('Next routine', nr ? nr.e + ' ' + nr.n : '—', nr ? 'starts ' + fmtDay(nr.start) : '') + kpi('Habit tree', SQ.PHASES[ph].e + ' ' + SQ.PHASES[ph].n, 'set by the number of routines') + kpi('Check-in rate', Math.round(rate * 100) + '%', 'families, last 7 days') + '</div>';
   b += '<div class="hab-g"><section class="panel"><div class="panel-head"><h2>Habit plan</h2><p>Each routine turns on by itself on its start date. Switch one off, change a date, or choose which ones show the NEW tag.</p></div><div class="routine-set">' + M.habits.map(h => '<div class="plan-row plan6' + (h.on ? '' : ' off') + '"><button class="switch" role="switch" aria-checked="' + h.on + '" aria-label="' + esc(h.n) + ' on or off" data-act="hp-on" data-k="' + h.no + '"></button><span class="em">' + h.e + '</span><div style="min-width:0"><b>' + h.no + '. ' + esc(h.n) + '</b><div class="tiny muted">Badge: ' + esc(h.b) + '</div></div><input type="date" data-chg="hp-date" data-k="' + h.no + '" value="' + (h.start || '') + '" aria-label="Start date for ' + esc(h.n) + '"><button class="chip" data-act="hp-new" data-k="' + h.no + '" aria-pressed="' + h.isNew + '">NEW tag</button>' + status(h) + '</div>').join('') + '</div></section>';
-  const nw = newHabits(M.today);
+  const nw = newHabits(M.today), BL = SQ.badgeCfg(M).levels, A = ACTIVE();
+  b += '<section class="panel"><div class="panel-head"><h2>Habit badges</h2><p>Children who reached each badge (' + BL.map(l => SQ.BADGE_E[l.k] + ' ' + l.days + ' days in a row').join(' · ') + '). The streak must start in the routine’s first two weeks.</p></div><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Routine</th><th>Start the streak</th>' + BL.map(l => '<th class="n">' + SQ.BADGE_E[l.k] + ' ' + SQ.BADGE_N[l.k] + '</th>').join('') + '</tr></thead><tbody>' +
+    SQ.badgeHabits(M).map(h => { const w = SQ.badgeWindow(M, h), live = M.today >= w.start && M.today <= w.end; return '<tr><td>' + h.e + ' ' + esc(h.n) + '</td><td>' + fmt(w.start) + ' – ' + fmt(w.end) + (live ? ' <span class="tag ok">Now</span>' : '') + '</td>' + BL.map(l => '<td class="n">' + (M.today < w.start ? '–' : A.filter(s => ((hs[s.id] || {}).mastery || []).some(m => m.no === h.no && m.k === l.k)).length) + '</td>').join('') + '</tr>'; }).join('') + '</tbody></table></div></section>';
   b += '<section class="panel"><h2>What parents see today</h2><div class="routines" style="max-width:380px">' + act.map(no => { const h = SQ.habit(M, no); return '<div class="rt">' + (nw.includes(no) ? '<span class="new">NEW</span>' : '') + '<span class="chk"></span><span class="em">' + h.e + '</span><span class="rn">' + esc(h.n) + '</span></div>'; }).join('') + '</div><div class="hint">“All done” means all ' + act.length + ' routines. A streak day needs at least ' + Math.ceil(act.length * (M.streakShare || .5)) + '.</div>' +
     '<h3>Season plan</h3><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Round</th><th>New routine</th><th class="n">Active</th></tr></thead><tbody>' + M.rounds.map(r => { const a = SQ.activeOn(M, r.end); const nwr = M.habits.filter(h => h.on && h.start && h.start >= SQ.addDays(r.start, -1) && h.start <= r.end); return '<tr><td>Round ' + r.n + ' · ' + fmt(r.start) + '</td><td>' + (nwr.map(h => h.e + ' ' + esc(h.n) + ' (' + fmt(h.start) + ')').join(', ') || '—') + '</td><td class="n">' + a.length + '</td></tr>'; }).join('') + '</tbody></table></div></section></div>';
   return b;
@@ -1439,12 +1508,12 @@ function mentorMarks() {
   const rows = [['Tarbiya live, full class (× % attended)', P.T], ['Thartheel live, full class (× % attended)', P.Q], ['Thartheel lesson cleared', P.L], ['Recorded class (× % watched)', P.R], ['Activity on time', P.AON], ['Activity late', P.ALATE], ['Quality: Good', P.QG], ['Quality: Excellent', P.QE], ['Quality: Outstanding', P.QO], ['Shine Star', P.SH], ['Mentor Appreciation', P.MA], ['Activity of the Week', P.AW], ['Cap for the 3 above, per round', P.CAP], ['Canva board photo', P.CV], ['Perfect attendance', P.PA]];
   return '<div class="hint sun">To change points, open the <b>Settings</b> tab in the Google Sheet. Change them only between rounds, so nobody’s rank changes in the middle of a round.</div>' +
     '<div class="g2"><section class="panel"><h2>Points</h2><div class="tbl-wrap"><table class="tbl pts-tbl"><tbody>' + rows.map(r => '<tr><td>' + r[0] + '</td><td class="n"><b>' + r[1] + '</b></td></tr>').join('') + '</tbody></table></div></section>' +
-    '<section class="panel"><h2>Bands</h2><div class="row">' + ['bronze', 'silver', 'gold', 'diamond'].map(k => '<span class="band b-' + k + '"><i></i>' + SQ.BANDN[k] + ' ' + B[k] + '</span>').join('') + '</div><h2>Stars (not in rank)</h2><p class="small muted">Each routine ' + S.habit + ' · All done +' + S.allDone + ' · Routine badge ' + S.mastery + ' · Weekly award ' + S.weekly + ' · Welcome ' + S.welcome + '</p><h2>Shown in class lists</h2><p class="small muted">' + SQ.CLASSES.map(c => c + ': ' + (c === 'Root 1' ? 'Star Group of ' : 'Top ') + SQ.topN(state.M, c)).join(' · ') + ' · Academy Top ' + SQ.topN(state.M, 'all') + '</p></section></div>';
+    '<section class="panel"><h2>Bands</h2><div class="row">' + ['bronze', 'silver', 'gold', 'diamond'].map(k => '<span class="band b-' + k + '"><i></i>' + SQ.BANDN[k] + ' ' + B[k] + '</span>').join('') + '</div><h2>Stars (not in rank)</h2><p class="small muted">Each routine ' + S.habit + ' · All done +' + S.allDone + ' · Habit badges (days in a row, highest counts) ' + SQ.badgeCfg(state.M).levels.map(l => SQ.BADGE_E[l.k] + ' ' + l.days + ' = ' + l.stars).join(', ') + ' · Weekly award ' + S.weekly + ' · Welcome ' + S.welcome + '</p><h2>Shown in class lists</h2><p class="small muted">' + SQ.CLASSES.map(c => c + ': ' + (c === 'Root 1' ? 'Star Group of ' : 'Top ') + SQ.topN(state.M, c)).join(' · ') + ' · Academy Top ' + SQ.topN(state.M, 'all') + '</p></section></div>';
 }
 
 /* ---------------- profile drawer ---------------- */
 function profile(s) {
-  const M = state.M, hs = (state.D.hs || {})[s.id] || { cur: 0, mastery: [], weekly: [], checkins7: 0, lastCheck: null }, st = SQ.starsOf(M, s, hs);
+  const M = state.M, hs = (state.D.hs || {})[s.id] || { cur: 0, mastery: [], progress: {}, weekly: [], checkins7: 0, lastCheck: null }, st = SQ.starsOf(M, s, hs);
   let x = '<div class="row between" style="flex-wrap:nowrap"><div class="row" style="flex-wrap:nowrap">' + av(s, 56) + '<div><h2 style="font-size:22px">' + esc(s.name) + '</h2><span class="small muted" style="font-weight:800">' + s.id + ' · ' + esc(s.cls) + ' · ' + esc(s.type === 'Individual' ? 'Individual · ' + s.teacher : s.batch) + ' · ' + esc(s.thg || 'no Thartheel group') + (s.region === 'GCC' ? ' · GCC' : '') + '</span></div></div><button class="x" data-act="close" aria-label="Close">×</button></div>';
   if (state.role === 'mentor') x += '<div class="row"><button class="btn sm" data-act="st-edit" data-id="' + s.id + '">✎ Edit details</button>' + '</div>';
   if (s.status !== 'Active') return x + '<div class="hint coral">Status: ' + esc(s.status) + '. Not shown in the app or the leaderboard.</div>';
@@ -1457,7 +1526,7 @@ function profile(s) {
   const weeks = []; for (let w = 1; w <= cw; w++) weeks.push(w);
   x += '<section class="panel"><h3>Classes by week (W1–W' + cw + ')</h3><span class="small muted">Tarbiya</span><div class="strip">' + weeks.map(w => cell(m.T[w - 1], 'W' + w)).join('') + '</div><span class="small muted">Thartheel</span><div class="strip">' + weeks.map(w => cell(m.Q[w - 1][0], 'W' + w + (m.Q[w - 1][1] ? ' · lesson cleared' : ''))).join('') + '</div><span class="small muted">Recorded</span><div class="strip">' + weeks.map(w => [0, 1, 2].map(k => cell(m.R[w - 1][k], 'W' + w + ' Rec ' + (k + 1))).join('')).join('') + '</div><p class="tiny muted">Green 75–100% · yellow 25–50% · red absent · blue excused · grey not marked</p></section>';
   x += '<section class="panel"><h3>Activity work</h3><div class="alist">' + weeks.slice().reverse().slice(0, 6).map(w => { const a = m.A[w - 1]; return '<div class="aitem"><span class="tiny muted">' + weekLabel(w) + '</span><div></div>' + (a && a[0] ? '<span class="tag ' + (a[0] === 'on' ? 'ok' : a[0] === 'late' ? 'warn' : a[0] === 'E' ? 'info' : 'bad') + '">' + ({ on: 'On time', late: 'Late', miss: 'Missing', E: 'Excused' }[a[0]]) + (a[1] && a[0] !== 'miss' ? ' · ' + SQ.QN[a[1]] : '') + '</span>' : '<span class="tag">Not marked</span>') + '</div>'; }).join('') + '</div></section>';
-  x += '<section class="panel"><h3>Habits</h3><p class="small muted">Streak ' + hs.cur + ' days · last check-in ' + (hs.lastCheck ? fmtDay(hs.lastCheck) : 'never') + ' · ' + hs.mastery.length + ' routine badges · ' + hs.weekly.length + ' weekly awards</p></section>';
+  x += '<section class="panel"><h3>Habits</h3><p class="small muted">Streak ' + hs.cur + ' days · last check-in ' + (hs.lastCheck ? fmtDay(hs.lastCheck) : 'never') + ' · ' + hs.weekly.length + ' weekly awards</p>' + habitBadgeRows(M, hs) + '</section>';
   const T = (state.D.messages || []).filter(t => t.sid === s.id), B = SQ.bonusOf(M, s.id), AW = (state.D.awards || []).filter(a => a.id === s.id);
   x += '<section class="panel"><h3>Timeline</h3><div class="alist">' + [].concat(T.map(t => ({ d: t.date, h: '💬 ' + esc(t.cat) + ': ' + esc(t.text.slice(0, 70)) + (t.assignee ? ' (assigned to ' + esc(t.assignee) + ')' : '') })), B.map(z => ({ d: z.date, h: (z.type === 'shine' ? '⭐ Shine Star' : z.type === 'mentor' ? '💚 Mentor Appreciation' : '🖼 Activity of the Week') + (z.note ? ' · ' + esc(z.note) : '') + ' (' + esc(z.by) + ')' })), AW.map(a => ({ d: SQ.round(M, a.rn).reveal, h: SQ.AWE[a.k] + ' ' + awardTitle(a) + ' · Round ' + a.rn }))).sort((a, b) => a.d < b.d ? 1 : -1).slice(0, 14).map(e => '<div class="aitem"><span class="tiny muted">' + fmt(e.d) + '</span><div>' + e.h + '</div><span></span></div>').join('') + '</div></section>';
   return x;
