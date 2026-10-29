@@ -432,6 +432,12 @@ tr.top td:first-child{color:var(--sun-ink);font-weight:900}
 .hb-bar u{position:absolute;top:0;bottom:0;width:2px;background:var(--surface)}
 .tiers{display:flex;gap:2px;font-size:24px}
 .tiers span.off{filter:grayscale(1);opacity:.3}
+.hck-wrap{max-height:620px;overflow:auto}
+.hck-wrap thead th{position:sticky;top:0;z-index:1}
+.tbl.hck th.c,.tbl.hck td.c{text-align:center;width:40px;padding-left:4px;padding-right:4px}
+.tbl.hck th.c{font-size:20px;color:var(--fg)}
+.tbl.hck .tick{color:var(--brand-deep);font-weight:900;font-size:18px}
+.tbl.hck .no{color:var(--line);font-weight:900;font-size:18px}
 .plan-row.plan6>.tag:last-child{min-width:100px;text-align:center;justify-self:end}
 @media (max-width:720px){.att-row{grid-template-columns:auto minmax(0,1fr) auto auto;gap:6px 8px}.att-row>span:empty{display:none}.att-row .tri{grid-column:2/-1}.att-row .who-cell small{font-size:11px}}
 
@@ -1323,7 +1329,7 @@ function watchList() {
     const lastA = []; for (let w = cw; w >= 1 && lastA.length < 2; w--) { const a = m.A[w - 1]; if (a && a[0]) lastA.push(a[0]); }
     if (lastA.length === 2 && lastA.every(a => a === 'miss')) why.push('No activity in last 2');
     const h = hs[s.id]; if (cw >= 1 && h) { const gap = h.lastCheck ? SQ.diffDays(h.lastCheck, M.today) : 99; if (gap >= 5) why.push(gap > 30 ? 'Never checked in habits' : 'No habit check-in for ' + gap + ' days'); }
-    if (why.length >= 2 || why.some(w => w.indexOf('Missed') === 0)) out.push({ s, why });
+    if (why.length >= 2 || why.some(w => w.indexOf('Missed') === 0 || /habit/.test(w))) out.push({ s, why });
   });
   return out.sort((a, b) => b.why.length - a.why.length);
 }
@@ -1458,11 +1464,36 @@ function mentorAppreciate() {
 }
 
 /* ----- habits ----- */
+/* who checked in on a day: mentor only (data: D.hrec, the last 14 days) */
+function habitDaily() {
+  const M = state.M, R = state.D.hrec || { start: M.today, ids: {} }, hs = state.D.hs || {};
+  const f = state.hck = state.hck || { d: M.today, cls: '', f: '' };
+  const days = []; for (let i = 0; i < 14; i++) { const d = SQ.addDays(M.today, -i); if (d >= R.start && d >= SQ.LAUNCH) days.push(d); }
+  if (!days.includes(f.d)) f.d = M.today;
+  const idx = SQ.diffDays(R.start, f.d), act = SQ.activeOn(M, f.d);
+  const all = ACTIVE().filter(s => !f.cls || s.cls === f.cls).map(s => {
+    const v = (R.ids[s.id] || [])[idx], done = v ? String(v).split(',').map(Number).filter(n => act.includes(n)) : [];
+    return { s, done, st: !done.length ? 'none' : done.length === act.length ? 'all' : 'some' };
+  }).sort((a, b) => (a.s.cls + a.s.name) < (b.s.cls + b.s.name) ? -1 : 1);
+  const n = k => all.filter(x => x.st === k).length, L = f.f ? all.filter(x => x.st === f.f) : all;
+  const dayName = d => d === M.today ? 'Today' : d === SQ.addDays(M.today, -1) ? 'Yesterday' : fmtDay(d);
+  let b = '<section class="panel"><div class="panel-head"><h2>Daily check-in</h2><p>Who ticked their routines on a day. Parents can tick today and the two days before, so recent days can still change. Press Refresh for the latest.</p></div>';
+  b += '<div class="row"><select class="inp" style="width:auto" data-chg="hck-d" aria-label="Day">' + days.map(d => '<option value="' + d + '"' + (d === f.d ? ' selected' : '') + '>' + dayName(d) + (d === M.today || d === SQ.addDays(M.today, -1) ? ' · ' + fmt(d) : '') + '</option>').join('') + '</select>' +
+    '<select class="inp" style="width:auto" data-chg="hck-cls" aria-label="Class"><option value="">All classes</option>' + SQ.CLASSES.map(c => '<option' + (f.cls === c ? ' selected' : '') + '>' + c + '</option>').join('') + '</select>' +
+    [['', 'All', all.length], ['all', '✅ All done', n('all')], ['some', '🟡 Some', n('some')], ['none', '❌ Not checked in', n('none')]].map(o => '<button class="chip" data-act="hck-f" data-k="' + o[0] + '" aria-pressed="' + (f.f === o[0]) + '">' + o[1] + ' <b>' + o[2] + '</b></button>').join('') + '</div>';
+  if (!act.length) return b + '<p class="muted">No routines were switched on that day.</p></section>';
+  if (!L.length) return b + '<p class="muted" style="font-weight:700">No children here.</p></section>';
+  b += '<div class="tbl-wrap hck-wrap"><table class="tbl hck"><thead><tr><th>Child</th>' + act.map(no => { const h = SQ.habit(M, no); return '<th class="c" title="' + esc(h.n) + '">' + h.e + '</th>'; }).join('') + '<th class="n">🔥 Streak</th><th>Last check-in</th></tr></thead><tbody>' +
+    L.map(x => { const h = hs[x.s.id] || {}; return '<tr class="click" data-act="open-st" data-id="' + x.s.id + '"><td>' + whoCell(x.s, x.s.cls + ' · ' + x.s.id) + '</td>' + act.map(no => '<td class="c">' + (x.done.includes(no) ? '<span class="tick">✓</span>' : '<span class="no" aria-label="not done">–</span>') + '</td>').join('') +
+      '<td class="n">' + (h.cur || 0) + '</td><td>' + (h.lastCheck ? (h.lastCheck === M.today ? 'Today' : fmtDay(h.lastCheck)) : '<span class="tag warn">Never</span>') + '</td></tr>'; }).join('') + '</tbody></table></div></section>';
+  return b;
+}
 function mentorHabits() {
   const M = state.M, act = SQ.activeOn(M, M.today), nr = SQ.nextRoutine(M, M.today), ph = SQ.phaseFor(act.length), hs = state.D.hs || {};
   const status = h => !h.on ? '<span class="tag">Off</span>' : !h.start ? '<span class="tag">Not scheduled</span>' : h.start <= M.today ? '<span class="tag ok">Active</span>' : '<span class="tag info">Starts ' + fmt(h.start) + '</span>';
   const rate = avg(ACTIVE().map(s => ((hs[s.id] || { checkins7: 0 }).checkins7) / 7));
   let b = '<div class="kpis">' + kpi('Active today', act.length, 'routines in the check-in') + kpi('NEW tag on', M.habits.filter(h => h.isNew).map(h => h.e + ' ' + h.n).join(', ') || '—', 'you choose') + kpi('Next routine', nr ? nr.e + ' ' + nr.n : '—', nr ? 'starts ' + fmtDay(nr.start) : '') + kpi('Habit tree', SQ.PHASES[ph].e + ' ' + SQ.PHASES[ph].n, 'set by the number of routines') + kpi('Check-in rate', Math.round(rate * 100) + '%', 'families, last 7 days') + '</div>';
+  b += habitDaily();
   b += '<div class="hab-g"><section class="panel"><div class="panel-head"><h2>Habit plan</h2><p>Each routine turns on by itself on its start date. Switch one off, change a date, or choose which ones show the NEW tag.</p></div><div class="routine-set">' + M.habits.map(h => '<div class="plan-row plan6' + (h.on ? '' : ' off') + '"><button class="switch" role="switch" aria-checked="' + h.on + '" aria-label="' + esc(h.n) + ' on or off" data-act="hp-on" data-k="' + h.no + '"></button><span class="em">' + h.e + '</span><div style="min-width:0"><b>' + h.no + '. ' + esc(h.n) + '</b><div class="tiny muted">Badge: ' + esc(h.b) + '</div></div><input type="date" data-chg="hp-date" data-k="' + h.no + '" value="' + (h.start || '') + '" aria-label="Start date for ' + esc(h.n) + '"><button class="chip" data-act="hp-new" data-k="' + h.no + '" aria-pressed="' + h.isNew + '">NEW tag</button>' + status(h) + '</div>').join('') + '</div></section>';
   const nw = newHabits(M.today), BL = SQ.badgeCfg(M).levels, A = ACTIVE();
   b += '<section class="panel"><div class="panel-head"><h2>Habit badges</h2><p>Children who reached each badge (' + BL.map(l => SQ.BADGE_E[l.k] + ' ' + l.days + ' days in a row').join(' · ') + '). The streak must start in the routine’s first two weeks.</p></div><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Routine</th><th>Start the streak</th>' + BL.map(l => '<th class="n">' + SQ.BADGE_E[l.k] + ' ' + SQ.BADGE_N[l.k] + '</th>').join('') + '</tr></thead><tbody>' +
@@ -1672,6 +1703,7 @@ document.addEventListener('click', e => {
     case 'cv-rn': state.cv.rn = +k; render(); break;
     case 'cv-set': { const rn = state.cv.rn || curR(); save('canva.set', { id, rn, status: k }, k === 'Approved' ? 'Approved · +' + M.P.CV + ' points' : k ? 'Marked: ask for a clearer photo' : 'Cleared', () => { M.marks[id].C[rn - 1] = k; }); break; }
     case 'hp-on': { const h = SQ.habit(M, +k); save('habit.plan', { no: h.no, on: !h.on }, (h.on ? 'Switched off: ' : 'Switched on: ') + h.n, () => { h.on = !h.on; }); break; }
+    case 'hck-f': state.hck.f = k || ''; render(); break;
     case 'hp-new': { const h = SQ.habit(M, +k); save('habit.plan', { no: h.no, isNew: !h.isNew }, h.isNew ? 'NEW tag removed from ' + h.n : 'NEW tag shown on ' + h.n, () => { h.isNew = !h.isNew; }); break; }
     case 'release': { const rn = +k; save('results.release', { rn }, 'Round ' + rn + ' results released. Parents see them at ' + revealText(rn) + '.', () => { if (!M.released.includes(rn)) M.released.push(rn); }); break; }
     /* reveal */
@@ -1690,6 +1722,7 @@ document.addEventListener('change', e => {
   else if (c === 'at-p') { const r = state.att.draft[t.dataset.id]; if (r) { r.p = +t.value; render(); } }
   else if (c === 'sf') { state.stf[t.dataset.k] = t.value; render(); }
   else if (c === 'cv-cls') { state.cv.cls = t.value; render(); }
+  else if (c === 'hck-d' || c === 'hck-cls') { state.hck[c === 'hck-d' ? 'd' : 'cls'] = t.value; render(); }
   else if (c === 'hp-date') { const h = SQ.habit(M, +t.dataset.k); const v = t.value || ''; save('habit.plan', { no: h.no, start: v, on: v ? true : h.on }, v ? h.n + ' starts ' + fmtDay(v) : 'Date removed', () => { h.start = v; if (v) h.on = true; }); }
   else if (c === 'choose') { const rn = +t.dataset.rn, cls = t.dataset.cls, kind = t.dataset.k, v = t.value; save('results.choose', { rn, cls, kind, id: v }, v ? (kind === 'canva' ? 'Best Canva Board' : 'Mentor’s Choice') + ' · ' + cls + ': ' + SID()[v].name : 'Cleared', () => { const C = state.D.choices = state.D.choices || {}; C[rn] = C[rn] || {}; C[rn][cls] = C[rn][cls] || {}; C[rn][cls][kind] = v; }); }
 });

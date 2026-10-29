@@ -1,4 +1,4 @@
-const C = 'sq-v3';
+const C = 'sq-v4';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'hud-front.webp', 'hud-side.webp', 'hud-back.webp', 'hud-fly.webp', 'hud-branch.webp', 'hud-face.webp'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(C).then(c => c.addAll(SHELL))); self.skipWaiting(); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== C).map(k => caches.delete(k))))); self.clients.claim(); });
